@@ -118,15 +118,14 @@ function getParam(params, name, defaultValue) {
 async function getTouristSpots(regionCode, categoryCode) {
   console.log('▶ getTouristSpots called with:', regionCode, categoryCode);
 
-  const query = `
-    SELECT id, name_ko, summary, main_image_url, address
-    FROM tourist_spots
-    WHERE region_code = $1
-      AND category_code = $2
-      AND is_active = TRUE
+  var query = ''.concat(
+    `SELECT id, name_ko, summary, main_image_url, address
+     FROM tourist_spots
+     WHERE region_code = '`, regionCode, `' `,
+	`AND category_code = '`, categoryCode, `' `,
+    ` AND is_active = TRUE
     ORDER BY sort_order NULLS LAST, name_ko
-    LIMIT 5;
-  `;
+    LIMIT 5;`;
   
   console.log('▶ query:', query);
   
