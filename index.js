@@ -120,18 +120,19 @@ async function getTouristSpots(regionCode, categoryCode) {
 
   const query = `
     SELECT id, name_ko, summary, main_image_url, address
-    FROM public.tourist_spots
+    FROM tourist_spots
     WHERE region_code = $1
       AND category_code = $2
       AND is_active = TRUE
     ORDER BY sort_order NULLS LAST, name_ko
     LIMIT 5;
   `;
+  
+  console.log('▶ query:', query);
+  
   const values = [regionCode, categoryCode];
 
-  //const result = await pool.query(query, values);
-  const result = await pool.query(query);
-  console.log('DB rows =', result.rows);
+  const result = await pool.query(query, values);
   return result.rows;
 }
 
@@ -139,7 +140,7 @@ async function getTouristSpots(regionCode, categoryCode) {
 async function getTourPrograms(regionCode, programTypeCode) {
   const query = `
     SELECT id, name_ko, summary, main_image_url, duration, schedule_info
-    FROM public.tour_programs
+    FROM tour_programs
     WHERE region_code = $1
       AND program_type_code = $2
       AND is_active = TRUE
@@ -156,7 +157,7 @@ async function getTourPrograms(regionCode, programTypeCode) {
 async function getTransportInfo(regionCode, categoryCode) {
   const query = `
     SELECT id, name_ko, summary, main_image_url, address
-    FROM public.transport_info
+    FROM transport_info
     WHERE region_code = $1
       AND category_code = $2
       AND is_active = TRUE
@@ -174,7 +175,7 @@ async function getFaqs(regionCode, categoryCode) {
   // category_code가 없으면 지역 공통 FAQ 전체
   let query = `
     SELECT id, question, answer
-    FROM public.faqs
+    FROM faqs
     WHERE is_active = TRUE
       AND (region_code = $1 OR region_code IS NULL)
   `;
