@@ -22,6 +22,9 @@ app.post('/kakao/webhook', async (req, res) => {
     // 카카오 Request에서 intent 이름, 파라미터 꺼내기
     const intentName = body.intent?.name || '';
     const params = body.action?.params || {};
+	
+	console.log('IntentName:', intentName);
+	console.log('Param:', params);
 
     // 기본값: 경산
     const regionCode = params.region_code || 'gyeongsan';
