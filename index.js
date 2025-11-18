@@ -1,32 +1,25 @@
-// index.js
 const express = require('express');
 const { Pool } = require('pg');
 
 const app = express();
 app.use(express.json());
 
-// Render Postgres 연결 (Render 대시보드에서 DATABASE_URL 환경변수 설정)
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
-    rejectUnauthorized: false, // Render Postgres 기본 설정
+    rejectUnauthorized: false, // ※ Render Postgres 기본 설정
   },
 });
 
-// 헬스체크용
 app.get('/', (req, res) => {
-  res.send('Kakao Tourism Bot is running.');
+  res.send('Kakao Chatbot is running.');
 });
 
-/**
- * 카카오톡 스킬 웹훅
- * URL: https://...onrender.com/kakao/webhook
- */
 app.post('/kakao/webhook', async (req, res) => {
   try {
     const body = req.body;
 
-    // Kakao 요청에서 intent 이름, 파라미터 꺼내기
+    // 카카오 Request에서 intent 이름, 파라미터 꺼내기
     const intentName = body.intent?.name || '';
     const params = body.action?.params || {};
 
@@ -37,7 +30,9 @@ app.post('/kakao/webhook', async (req, res) => {
 
     switch (intentName) {
       case '관광지_카테고리_목록': {
-        // ex) params.category_code = 'CULTURAL_TEMPLE' / 'NATURE_WALK' / 'FESTIVAL_ACTIVITY'
+        // 'CULTURAL_TEMPLE'	: '문화유적/사찰'
+		// 'NATURE_WALK' 		: '자연경관/산책명소'
+		// 'FESTIVAL_ACTIVITY'	: '축제/체험/볼거리'
         const categoryCode = params.category_code || 'CULTURAL_TEMPLE';
         const spots = await getTouristSpots(regionCode, categoryCode);
         kakaoResponse = buildTouristSpotListResponse(spots, categoryCode);
@@ -45,7 +40,10 @@ app.post('/kakao/webhook', async (req, res) => {
       }
 
       case '시티투어_프로그램_목록': {
-        // ex) params.program_type_code = 'CITY_TOUR' / 'HYUNMYEONG_TOUR' / 'WISH_TOUR' / 'SEONBI_TOUR'
+        // 'CITY_TOUR' 			: '시티투어'
+		// 'HYUNMYEONG_TOUR'	: '현명품투어'
+		// 'WISH_TOUR' 			: '소원성취투어'
+		// 'SEONBI_TOUR'		: '선비문화투어'
         const programTypeCode = params.program_type_code || 'CITY_TOUR';
         const programs = await getTourPrograms(regionCode, programTypeCode);
         kakaoResponse = buildTourProgramListResponse(programs, programTypeCode);
@@ -53,7 +51,10 @@ app.post('/kakao/webhook', async (req, res) => {
       }
 
       case '교통편의_목록': {
-        // ex) params.category_code = 'PARKING' / 'BUS' / 'TOURIST_CENTER' / 'ROUTE'
+        // 'PARKING' 			: '주차장'
+		// 'BUS' 				: '버스'
+		// 'TOURIST_CENTER' 	: '관광안내소'
+		// 'ROUTE'				: '이동동선'
         const categoryCode = params.category_code || 'PARKING';
         const items = await getTransportInfo(regionCode, categoryCode);
         kakaoResponse = buildTransportListResponse(items, categoryCode);
@@ -61,7 +62,8 @@ app.post('/kakao/webhook', async (req, res) => {
       }
 
       case 'FAQ_목록': {
-        const faqCategoryCode = params.category_code || null; // GENERAL / COURSE / TRANSPORT / ETC
+		// GENERAL / COURSE / TRANSPORT / ETC
+        const faqCategoryCode = params.category_code || null; 
         const faqs = await getFaqs(regionCode, faqCategoryCode);
         kakaoResponse = buildFaqListResponse(faqs);
         break;
