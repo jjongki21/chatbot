@@ -120,7 +120,7 @@ async function getTouristSpots(regionCode, categoryCode) {
 
   const query = `
     SELECT id, name_ko, summary, main_image_url, address
-    FROM tourist_spots
+    FROM public.tourist_spots
     WHERE region_code = $1
       AND category_code = $2
       AND is_active = TRUE
@@ -137,7 +137,7 @@ async function getTouristSpots(regionCode, categoryCode) {
 async function getTourPrograms(regionCode, programTypeCode) {
   const query = `
     SELECT id, name_ko, summary, main_image_url, duration, schedule_info
-    FROM tour_programs
+    FROM public.tour_programs
     WHERE region_code = $1
       AND program_type_code = $2
       AND is_active = TRUE
@@ -154,7 +154,7 @@ async function getTourPrograms(regionCode, programTypeCode) {
 async function getTransportInfo(regionCode, categoryCode) {
   const query = `
     SELECT id, name_ko, summary, main_image_url, address
-    FROM transport_info
+    FROM public.transport_info
     WHERE region_code = $1
       AND category_code = $2
       AND is_active = TRUE
@@ -172,7 +172,7 @@ async function getFaqs(regionCode, categoryCode) {
   // category_code가 없으면 지역 공통 FAQ 전체
   let query = `
     SELECT id, question, answer
-    FROM faqs
+    FROM public.faqs
     WHERE is_active = TRUE
       AND (region_code = $1 OR region_code IS NULL)
   `;
