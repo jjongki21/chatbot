@@ -125,7 +125,7 @@ async function getTouristSpots(regionCode, categoryCode) {
 	`AND category_code = '`, categoryCode, `' `,
     ` AND is_active = TRUE
     ORDER BY sort_order NULLS LAST, name_ko
-    LIMIT 5;`;
+    LIMIT 5;`);
   
   console.log('▶ query:', query);
   
