@@ -129,7 +129,9 @@ async function getTouristSpots(regionCode, categoryCode) {
   `;
   const values = [regionCode, categoryCode];
 
-  const result = await pool.query(query, values);
+  //const result = await pool.query(query, values);
+  const result = await pool.query(query);
+  console.log('DB rows =', result.rows);
   return result.rows;
 }
 
