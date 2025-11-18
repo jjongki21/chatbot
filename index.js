@@ -18,76 +18,65 @@ app.get('/', (req, res) => {
 app.post('/kakao/webhook', async (req, res) => {
   try {
     const body = req.body;
-
-    // 카카오 Request에서 intent 이름, 파라미터 꺼내기
     const intentName = body.intent?.name || '';
     const params = body.action?.params || {};
-	
-	console.log('Intent Name:', intentName);
-	console.log('Param:', params);
 
-    // 기본값: 경산
-    const regionCode = params.region_code || 'gyeongsan';
-	
-	console.log('Region Code:', regionCode);
+    // 디버그 로그
+    console.log('intentName:', intentName);
+    console.log('raw params:', JSON.stringify(params, null, 2));
+
+    // 🔑 여기서부터는 getParam 사용
+    const regionCode = getParam(params, 'region_code', 'gyeongsan');
 
     let kakaoResponse;
 
     switch (intentName) {
       case '관광지_카테고리_목록': {
-        // 'CULTURAL_TEMPLE'	: '문화유적/사찰'
-		// 'NATURE_WALK' 		: '자연경관/산책명소'
-		// 'FESTIVAL_ACTIVITY'	: '축제/체험/볼거리'
-        const categoryCode = params.category_code || 'CULTURAL_TEMPLE';
-		
-		console.log('Category Code:', categoryCode);
-		
+        const categoryCode = getParam(params, 'category_code', 'CULTURAL_TEMPLE');
+        console.log('[관광지_카테고리_목록] region:', regionCode, 'category:', categoryCode);
+
         const spots = await getTouristSpots(regionCode, categoryCode);
+        console.log('spots.length =', spots.length);
+
         kakaoResponse = buildTouristSpotListResponse(spots, categoryCode);
         break;
       }
 
       case '시티투어_프로그램_목록': {
-        // 'CITY_TOUR' 			: '시티투어'
-		// 'HYUNMYEONG_TOUR'	: '현명품투어'
-		// 'WISH_TOUR' 			: '소원성취투어'
-		// 'SEONBI_TOUR'		: '선비문화투어'
-        const programTypeCode = params.program_type_code || 'CITY_TOUR';
-		
-		console.log('Program Type Code:', programTypeCode);
-		
+        const programTypeCode = getParam(params, 'program_type_code', 'CITY_TOUR');
+        console.log('[시티투어_프로그램_목록] region:', regionCode, 'type:', programTypeCode);
+
         const programs = await getTourPrograms(regionCode, programTypeCode);
+        console.log('programs.length =', programs.length);
+
         kakaoResponse = buildTourProgramListResponse(programs, programTypeCode);
         break;
       }
 
       case '교통편의_목록': {
-        // 'PARKING' 			: '주차장'
-		// 'BUS' 				: '버스'
-		// 'TOURIST_CENTER' 	: '관광안내소'
-		// 'ROUTE'				: '이동동선'
-        const categoryCode = params.category_code || 'PARKING';
-		
-		console.log('Category Code:', categoryCode);
-		
+        const categoryCode = getParam(params, 'category_code', 'PARKING');
+        console.log('[교통편의_목록] region:', regionCode, 'category:', categoryCode);
+
         const items = await getTransportInfo(regionCode, categoryCode);
+        console.log('items.length =', items.length);
+
         kakaoResponse = buildTransportListResponse(items, categoryCode);
         break;
       }
 
       case 'FAQ_목록': {
-		// GENERAL / COURSE / TRANSPORT / ETC
-        const faqCategoryCode = params.category_code || null; 
-		
-		console.log('FAQ Category Code:', faqCategoryCode);
-		
+        const faqCategoryCode = getParam(params, 'category_code', null);
+        console.log('[FAQ_목록] region:', regionCode, 'category:', faqCategoryCode);
+
         const faqs = await getFaqs(regionCode, faqCategoryCode);
+        console.log('faqs.length =', faqs.length);
+
         kakaoResponse = buildFaqListResponse(faqs);
         break;
       }
 
       default: {
-        // 정의되지 않은 의도일 때
+        console.log('⚠ 알 수 없는 intentName:', intentName);
         kakaoResponse = buildSimpleTextResponse(
           '요청하신 내용을 이해하기가 조금 어려워요 😅\n' +
           '메뉴에서 관광지 안내, 시티투어, 교통정보, FAQ 중 하나를 다시 선택해 주세요.'
@@ -98,8 +87,6 @@ app.post('/kakao/webhook', async (req, res) => {
     res.json(kakaoResponse);
   } catch (err) {
     console.error('Kakao Webhook Error:', err);
-
-    // 에러 시 카카오 스킬 응답 형식으로 에러 메시지 반환
     const errorResponse = buildSimpleTextResponse(
       '잠시 시스템 오류가 발생했어요 😥\n' +
       '잠시 후 다시 시도해 주세요.'
@@ -108,8 +95,29 @@ app.post('/kakao/webhook', async (req, res) => {
   }
 });
 
+
+// Kakao params에서 안전하게 값 꺼내기
+function getParam(params, name, defaultValue) {
+  const raw = params?.[name];
+
+  if (raw == null) return defaultValue;
+
+  if (typeof raw === 'string') return raw;           // "CULTURAL_TEMPLE"
+  if (typeof raw === 'object' && 'value' in raw) {
+    return raw.value;                                // { value: "CULTURAL_TEMPLE" }
+  }
+
+  return defaultValue;
+}
+
+/* ===============================
+ * Database Select 처리
+ * =============================== */
+
 // 관광지 목록 조회
 async function getTouristSpots(regionCode, categoryCode) {
+  console.log('▶ getTouristSpots called with:', regionCode, categoryCode);
+
   const query = `
     SELECT id, name_ko, summary, main_image_url, address
     FROM tourist_spots
