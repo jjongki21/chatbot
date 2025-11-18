@@ -23,11 +23,13 @@ app.post('/kakao/webhook', async (req, res) => {
     const intentName = body.intent?.name || '';
     const params = body.action?.params || {};
 	
-	console.log('IntentName:', intentName);
+	console.log('Intent Name:', intentName);
 	console.log('Param:', params);
 
     // 기본값: 경산
     const regionCode = params.region_code || 'gyeongsan';
+	
+	console.log('Region Code:', regionCode);
 
     let kakaoResponse;
 
@@ -37,6 +39,9 @@ app.post('/kakao/webhook', async (req, res) => {
 		// 'NATURE_WALK' 		: '자연경관/산책명소'
 		// 'FESTIVAL_ACTIVITY'	: '축제/체험/볼거리'
         const categoryCode = params.category_code || 'CULTURAL_TEMPLE';
+		
+		console.log('Category Code:', categoryCode);
+		
         const spots = await getTouristSpots(regionCode, categoryCode);
         kakaoResponse = buildTouristSpotListResponse(spots, categoryCode);
         break;
@@ -48,6 +53,9 @@ app.post('/kakao/webhook', async (req, res) => {
 		// 'WISH_TOUR' 			: '소원성취투어'
 		// 'SEONBI_TOUR'		: '선비문화투어'
         const programTypeCode = params.program_type_code || 'CITY_TOUR';
+		
+		console.log('Program Type Code:', programTypeCode);
+		
         const programs = await getTourPrograms(regionCode, programTypeCode);
         kakaoResponse = buildTourProgramListResponse(programs, programTypeCode);
         break;
@@ -59,6 +67,9 @@ app.post('/kakao/webhook', async (req, res) => {
 		// 'TOURIST_CENTER' 	: '관광안내소'
 		// 'ROUTE'				: '이동동선'
         const categoryCode = params.category_code || 'PARKING';
+		
+		console.log('Category Code:', categoryCode);
+		
         const items = await getTransportInfo(regionCode, categoryCode);
         kakaoResponse = buildTransportListResponse(items, categoryCode);
         break;
@@ -67,6 +78,9 @@ app.post('/kakao/webhook', async (req, res) => {
       case 'FAQ_목록': {
 		// GENERAL / COURSE / TRANSPORT / ETC
         const faqCategoryCode = params.category_code || null; 
+		
+		console.log('FAQ Category Code:', faqCategoryCode);
+		
         const faqs = await getFaqs(regionCode, faqCategoryCode);
         kakaoResponse = buildFaqListResponse(faqs);
         break;
