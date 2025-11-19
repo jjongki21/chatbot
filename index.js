@@ -44,7 +44,7 @@ app.post('/kakao/webhook', async (req, res) => {
         const spots = await getTouristSpots(regionCode, categoryCode);
         console.log('spots.length =', spots.length);
 
-        kakaoResponse = buildTouristSpotListResponse(spots, categoryCode);
+        kakaoResponse = buildTouristSpotCarouselResponse(spots, categoryCode);
         break;
       }
 
@@ -214,7 +214,93 @@ function buildSimpleTextResponse(text) {
   };
 }
 
-// 관광지 목록 응답 (simpleText + quickReplies 예시)
+function buildTouristSpotCarouselResponse(spots) {
+  if (!spots || spots.length === 0) {
+    return buildSimpleTextResponse(
+      '해당 카테고리의 관광지 정보를 찾지 못했어요 😢\n다른 유형을 선택해 주세요.'
+    );
+  }
+
+  // Kakao basicCard 캐러셀 items 생성
+  const items = spots.slice(0, 10).map(s => {
+    // 설명 텍스트 구성: 요약 + 주소
+    const descLines = [];
+    if (s.summary) descLines.push(s.summary);
+    if (s.address) descLines.push(`📍 ${s.address}`);
+    const description = descLines.join('\n');
+
+    // 웹페이지 URL (없으면 네이버 지도나 기본 페이지로 대체)
+    const homepageUrl =
+      s.homepage_url ||
+      buildNaverMapUrl(s); // 최소한 네이버 검색 페이지라도 연결
+
+    // 네이버 지도 URL
+    const naverMapUrl = buildNaverMapUrl(s);
+
+    const buttons = [];
+
+    // 1) 웹페이지 링크 버튼
+    buttons.push({
+      label: '웹페이지 보기',
+      action: 'webLink',
+      webLinkUrl: homepageUrl,
+    });
+
+    // 2) 네이버지도 경로 버튼
+    buttons.push({
+      label: '네이버지도 경로',
+      action: 'webLink',
+      webLinkUrl: naverMapUrl,
+    });
+
+    // 3) 연락처 버튼 (전화가 있을 때만)
+    if (s.phone) {
+      buttons.push({
+        label: '전화하기',
+        action: 'phone',
+        phoneNumber: s.phone,
+      });
+    }
+
+    return {
+      title: s.name_ko,                      // 관광지명
+      description: description || '관광지 정보입니다.',
+      thumbnail: {
+        imageUrl:
+          s.main_image_url ||
+          'https://example.com/default_tour_image.jpg', // 기본 이미지
+      },
+      buttons,
+    };
+  });
+
+  return {
+    version: '2.0',
+    template: {
+      outputs: [
+        {
+          carousel: {
+            type: 'basicCard',
+            items,
+          },
+        },
+      ],
+      quickReplies: [
+		{
+          label: '처음으로',
+          action: 'message',
+          messageText: '처음으로',
+        },
+        {
+          label: '다른 유형 보기',
+          action: 'message',
+          messageText: '관광지 안내',
+        },        
+      ],
+    },
+  };
+}
+
 function buildTouristSpotListResponse(spots, categoryCode) {
   if (!spots || spots.length === 0) {
     return buildSimpleTextResponse(
@@ -240,6 +326,11 @@ function buildTouristSpotListResponse(spots, categoryCode) {
         },
       ],
       quickReplies: [
+		{
+          label: '처음으로',
+          action: 'message',
+          messageText: '처음으로',
+        },
         {
           label: '문화유적/사찰',
           action: 'message',
@@ -254,11 +345,6 @@ function buildTouristSpotListResponse(spots, categoryCode) {
           label: '축제/체험/볼거리',
           action: 'message',
           messageText: '축제/체험/볼거리 알려줘',
-        },
-        {
-          label: '메인 메뉴',
-          action: 'message',
-          messageText: '메인 메뉴',
         },
       ],
     },
@@ -292,6 +378,11 @@ function buildTourProgramListResponse(programs, programTypeCode) {
         },
       ],
       quickReplies: [
+	    {
+          label: '처음으로',
+          action: 'message',
+          messageText: '처음으로',
+        },
         {
           label: '시티투어',
           action: 'message',
@@ -311,11 +402,6 @@ function buildTourProgramListResponse(programs, programTypeCode) {
           label: '선비문화투어',
           action: 'message',
           messageText: '선비문화투어 알려줘',
-        },
-        {
-          label: '메인 메뉴',
-          action: 'message',
-          messageText: '메인 메뉴',
         },
       ],
     },
@@ -348,6 +434,11 @@ function buildTransportListResponse(items, categoryCode) {
         },
       ],
       quickReplies: [
+		{
+          label: '처음으로',
+          action: 'message',
+          messageText: '처음으로',
+        },
         {
           label: '주차장',
           action: 'message',
@@ -367,11 +458,6 @@ function buildTransportListResponse(items, categoryCode) {
           label: '이동 동선',
           action: 'message',
           messageText: '이동 동선 알려줘',
-        },
-        {
-          label: '메인 메뉴',
-          action: 'message',
-          messageText: '메인 메뉴',
         },
       ],
     },
@@ -420,6 +506,24 @@ function buildFaqListResponse(faqs) {
       ],
     },
   };
+}
+
+function buildNaverMapUrl(spot) {
+  const keyword = spot.address
+    ? `${spot.name_ko} ${spot.address}`
+    : spot.name_ko;
+
+  const encoded = encodeURIComponent(keyword);
+  return `https://map.naver.com/v5/search/${encoded}`;
+}
+
+function buildNaverMapUrl(spot) {
+  const keyword = spot.address
+    ? `${spot.name_ko} ${spot.address}`
+    : spot.name_ko;
+
+  const encoded = encodeURIComponent(keyword);
+  return `https://map.naver.com/v5/search/${encoded}`;
 }
 
 // Render 환경용 포트 설정
