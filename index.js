@@ -116,8 +116,6 @@ function getParam(params, name, defaultValue) {
 
 // 관광지 목록 조회
 async function getTouristSpots(regionCode, categoryCode) {
-  console.log('▶ getTouristSpots called with:', regionCode, categoryCode);
-
   const query = `
     SELECT id, name_ko, summary, main_image_url, address
     FROM tourist_spots
@@ -127,8 +125,6 @@ async function getTouristSpots(regionCode, categoryCode) {
     ORDER BY sort_order NULLS LAST, name_ko
     LIMIT 5;
   `;
-  
-  console.log('▶ query:', query);
   
   const values = [regionCode, categoryCode];
 
