@@ -4,6 +4,8 @@ const { Pool } = require('pg');
 const app = express();
 app.use(express.json());
 
+console.log('step 1');
+
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
@@ -11,9 +13,13 @@ const pool = new Pool({
   },
 });
 
+console.log('step 2');
+
 app.get('/', (req, res) => {
   res.send('Kakao Chatbot is running.');
 });
+
+console.log('step 3');
 
 app.post('/kakao/webhook', async (req, res) => {
   try {
