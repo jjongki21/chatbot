@@ -4,8 +4,6 @@ const { Pool } = require('pg');
 const app = express();
 app.use(express.json());
 
-console.log('step 1');
-
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
@@ -13,18 +11,14 @@ const pool = new Pool({
   },
 });
 
-console.log('step 2');
-
 app.get('/', (req, res) => {
   res.send('Kakao Chatbot is running.');
 });
 
-console.log('step 3');
+console.log('Connection Running');
 
 app.post('/kakao/webhook', async (req, res) => {
 	try {
-		console.log('body:', JSON.stringify(body));
-		
 		const body = req.body;
 		const intentName = body.intent?.name || '';
 		const params = body.action?.params || {};
@@ -147,10 +141,9 @@ function getParam(params, name, defaultValue) {
 
 
 /* ===============================
- * Database Select 처리
+ * 관광지 목록 처리
  * =============================== */
 
-// 관광지 목록 조회
 async function getTouristSpots(regionCode, categoryCode) {
 	
 	console.log('[관광지_카테고리_목록] region:', regionCode, 'category:', categoryCode);
@@ -511,3 +504,11 @@ function buildNaverMapUrl(spot) {
 
 
 
+/* ===============================
+ * Render환경용 포트 설정
+ * =============================== */
+ 
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
+});
