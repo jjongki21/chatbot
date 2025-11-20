@@ -11,6 +11,8 @@ const pool = new Pool({
   },
 });
 
+const defImg = 'https://example.com/default_tour_image.jpg';
+
 app.get('/', (req, res) => {
   res.send('Kakao Chatbot is running.');
 });
@@ -48,18 +50,35 @@ app.post('/kakao/webhook', async (req, res) => {
 				const spots = await getTouristSpots(regionCode, categoryCode);
 				kakaoResponse = buildTouristSpotCarouselResponse(spots, categoryCode);
 				break;
-			}	  
+			}
+			
+			case 'tour_programs_list_city': {
+				const programTypeCode = 'CITY_TOUR';
+				const programs = await getTourPrograms(regionCode, programTypeCode);
+				kakaoResponse = buildTourProgramListResponse(programs, programTypeCode);
+				break;
+			}
+			case 'tour_programs_list_luxury': {
+				const programTypeCode = 'LUXURY_TOUR';
+				const programs = await getTourPrograms(regionCode, programTypeCode);
+				kakaoResponse = buildTourProgramListResponse(programs, programTypeCode);
+				break;
+			}
+			case 'tour_programs_list_wish': {
+				const programTypeCode = 'WISH_TOUR';
+				const programs = await getTourPrograms(regionCode, programTypeCode);
+				kakaoResponse = buildTourProgramListResponse(programs, programTypeCode);
+				break;
+			}
+			case 'tour_programs_list_scholar': {
+				const programTypeCode = 'SCHOLAR_TOUR';
+				const programs = await getTourPrograms(regionCode, programTypeCode);
+				kakaoResponse = buildTourProgramListResponse(programs, programTypeCode);
+				break;
+			}
 
-				  case '시티투어_프로그램_목록': {
-					const programTypeCode = getParam(params, 'program_type_code', 'CITY_TOUR');
-					console.log('[시티투어_프로그램_목록] region:', regionCode, 'type:', programTypeCode);
 
-					const programs = await getTourPrograms(regionCode, programTypeCode);
-					console.log('programs.length =', programs.length);
-
-					kakaoResponse = buildTourProgramListResponse(programs, programTypeCode);
-					break;
-				  }
+				  
 
 				  case '교통편의_목록': {
 					const categoryCode = getParam(params, 'category_code', 'PARKING');
@@ -137,19 +156,26 @@ function getParam(params, name, defaultValue) {
 	return defaultValue;
 }
 
+function buildNaverMapUrl(spot) {
+  const keyword = spot.address
+    ? `${spot.name_ko} ${spot.address}`
+    : spot.name_ko;
+
+  const encoded = encodeURIComponent(keyword);
+  return `https://map.naver.com/v5/search/${encoded}`;
+}
 
 
 
 /* ===============================
- * 관광지 목록 처리
+ * 관광지 목록
  * =============================== */
 
 async function getTouristSpots(regionCode, categoryCode) {
-	
-	console.log('[관광지_카테고리_목록] region:', regionCode, 'category:', categoryCode);
+	console.log('[관광지목록] region:', regionCode, 'category:', categoryCode);
 	const query = 
 		`
-			SELECT id, name_ko, summary, main_image_url, address
+			SELECT id, name_ko, summary, main_image_url, address, phone, homepageUrl
 			FROM tourist_spots
 			WHERE region_code = $1
 			  AND category_code = $2
@@ -178,13 +204,11 @@ function buildTouristSpotCarouselResponse(spots) {
 		if (s.address) descLines.push(`📍 ${s.address}`);
 		const description = descLines.join('\n');
 
-		// 웹페이지 URL (없으면 네이버 지도나 기본 페이지로 대체)
-		const homepageUrl =
-		  s.homepage_url ||
-		  buildNaverMapUrl(s); // 최소한 네이버 검색 페이지라도 연결
-
 		// 네이버 지도 URL
 		const naverMapUrl = buildNaverMapUrl(s);
+		
+		// 웹페이지 URL (없으면 네이버 지도나 기본 페이지로 대체)
+		const homepageUrl = s.homepage_url || naverMapUrl;
 
 		const buttons = [];
 
@@ -214,11 +238,7 @@ function buildTouristSpotCarouselResponse(spots) {
 		return {
 			title: s.name_ko,
 			description: description || '관광지 정보입니다.',
-			thumbnail: {
-				imageUrl:
-					s.main_image_url ||
-					'https://example.com/default_tour_image.jpg', // 기본 이미지
-			},
+			thumbnail: { imageUrl: s.main_image_url || defImg, },
 			buttons,
 		};
 	});
@@ -253,91 +273,118 @@ function buildTouristSpotCarouselResponse(spots) {
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-// 시티투어/상설투어 프로그램 목록 조회
+/* ===============================
+ * 시티투어 / 상설투어 프로그램
+ * =============================== */
+ 
 async function getTourPrograms(regionCode, programTypeCode) {
-  const query = `
-    SELECT id, name_ko, summary, main_image_url, duration, schedule_info
-    FROM tour_programs
-    WHERE region_code = $1
-      AND program_type_code = $2
-      AND is_active = TRUE
-    ORDER BY sort_order NULLS LAST, name_ko
-    LIMIT 5;
-  `;
-  const values = [regionCode, programTypeCode];
+	console.log('[투어프로그램목록] region:', regionCode, 'program:', programTypeCode);
+	const query = 
+		`
+		    SELECT id, name_ko, summary, description, route_description, duration, schedule_info,
+				   meeting_point, price, reservation_info, main_image_url, homepage_url, tags, sort_order
+			FROM tour_programs
+			WHERE region_code = $1
+			  AND program_type_code = $2
+			  AND is_active = TRUE
+			ORDER BY sort_order NULLS LAST, name_ko
+			LIMIT 10;
+		`;
 
-  const result = await pool.query(query, values);
-  return result.rows;
+	const values = [regionCode, programTypeCode];
+	const result = await pool.query(query, values);
+	
+	console.log('Programs Length =', result.rows);
+	return result.rows;
 }
 
-// 시티투어/프로그램 목록 응답
 function buildTourProgramListResponse(programs, programTypeCode) {
-  if (!programs || programs.length === 0) {
-    return buildSimpleTextResponse(
-      '해당 종류의 투어 프로그램 정보를 찾지 못했어요 😢\n' +
-      '다른 투어를 선택해 주세요.'
-    );
-  }
+	if (!programs || programs.length === 0) {
+		return buildSimpleTextResponse(
+			'해당 종류의 투어 프로그램 정보를 찾지 못했어요 😢\n다른 투어를 선택해 주세요.'
+		);
+	}
+	
+	const items = programs.slice(0, 10).map(p => {
+		const descLines = [];
+		
+		if (p.summary) descLines.push(p.summary);
+		if (p.duration) descLines.push(`⏱ 소요시간: ${p.duration}`);
+		if (p.schedule_info) descLines.push(`🕒 운영: ${p.schedule_info}`);
+		if (p.meeting_point) descLines.push(`📍 출발: ${p.meeting_point}`);
 
-  let text = '🚌 시티투어/상설투어 프로그램\n\n';
-  programs.forEach((p, idx) => {
-    text += `${idx + 1}. ${p.name_ko}\n`;
-    if (p.summary) text += `   - ${p.summary}\n`;
-    if (p.duration) text += `   🕒 ${p.duration}\n`;
-    if (p.schedule_info) text += `   📅 ${p.schedule_info}\n`;
-    text += '\n';
-  });
+		const description = descLines.length > 0 ? descLines.join('\n') : `${typeLabel} 프로그램입니다.`;
 
-  return {
-    version: '2.0',
-    template: {
-      outputs: [
-        {
-          simpleText: { text },
-        },
-      ],
-      quickReplies: [
-	    {
-          label: '처음으로',
-          action: 'message',
-          messageText: '처음으로',
-        },
-        {
-          label: '시티투어',
-          action: 'message',
-          messageText: '시티투어 알려줘',
-        },
-        {
-          label: '현명품투어',
-          action: 'message',
-          messageText: '현명품투어 알려줘',
-        },
-        {
-          label: '소원성취투어',
-          action: 'message',
-          messageText: '소원성취투어 알려줘',
-        },
-        {
-          label: '선비문화투어',
-          action: 'message',
-          messageText: '선비문화투어 알려줘',
-        },
-      ],
-    },
-  };
+		const buttons = [];
+
+		// 웹페이지 보기
+		if (p.homepage_url) {
+			buttons.push({
+				label: '웹페이지 보기',
+				action: 'webLink',
+				webLinkUrl: p.homepage_url,
+			});
+		}
+
+		// 전화 문의
+		if (p.reservation_info && /[0-9]{2,4}-[0-9]{3,4}-[0-9]{4}/.test(p.reservation_info)) {
+		// 예약 안내문 안에 전화번호가 섞여 있을 수도 있어서, 정규식으로 추출
+			const phoneMatch = p.reservation_info.match(/[0-9]{2,4}-[0-9]{3,4}-[0-9]{4}/);
+			if (phoneMatch) {
+				buttons.push({
+					label: '전화 문의',
+					action: 'phone',
+					phoneNumber: phoneMatch[0],
+				});
+			}
+		}
+
+		// 버튼이 하나도 없으면, 안내용 버튼 하나라도 추가
+		if (buttons.length === 0) {
+			buttons.push({
+				label: '상세 안내 문의',
+				action: 'message',
+				messageText: `${typeLabel} 문의`,
+			});
+		}
+
+		return {
+			title: p.name_ko,
+			description,
+			thumbnail: { imageUrl: p.main_image_url || defImg, },
+			buttons,
+		};
+	});
+
+	return {
+		version: '2.0',
+		template: {
+			outputs: [
+				{
+					carousel: {
+						type: 'basicCard',
+						items,
+					},
+				},
+			],
+			quickReplies: [
+				{
+					label: '다른 투어 보기',
+					action: 'message',
+					messageText: '시티투어/상설투어 프로그램',
+				},
+				{
+					label: '처음으로',
+					action: 'message',
+					messageText: '처음으로',
+				},
+			],
+		},
+	};
 }
+
+
+
 
 
 
@@ -484,23 +531,7 @@ function buildFaqListResponse(faqs) {
   };
 }
 
-function buildNaverMapUrl(spot) {
-  const keyword = spot.address
-    ? `${spot.name_ko} ${spot.address}`
-    : spot.name_ko;
 
-  const encoded = encodeURIComponent(keyword);
-  return `https://map.naver.com/v5/search/${encoded}`;
-}
-
-function buildNaverMapUrl(spot) {
-  const keyword = spot.address
-    ? `${spot.name_ko} ${spot.address}`
-    : spot.name_ko;
-
-  const encoded = encodeURIComponent(keyword);
-  return `https://map.naver.com/v5/search/${encoded}`;
-}
 
 
 
