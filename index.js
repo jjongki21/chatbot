@@ -23,6 +23,8 @@ console.log('step 3');
 
 app.post('/kakao/webhook', async (req, res) => {
 	try {
+		console.log('body:', body);
+		
 		const body = req.body;
 		const intentName = body.intent?.name || '';
 		const params = body.action?.params || {};
