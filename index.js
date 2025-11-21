@@ -175,7 +175,7 @@ async function getTouristSpots(regionCode, categoryCode) {
 	console.log('[관광지목록] region:', regionCode, 'category:', categoryCode);
 	const query = 
 		`
-			SELECT id, name_ko, summary, main_image_url, address, phone, homepageUrl
+			SELECT id, name_ko, summary, main_image_url, address, phone, homepage_Url
 			FROM tourist_spots
 			WHERE region_code = $1
 			  AND category_code = $2
@@ -369,14 +369,14 @@ function buildTourProgramListResponse(programs, programTypeCode) {
 			],
 			quickReplies: [
 				{
-					label: '다른 투어 보기',
-					action: 'message',
-					messageText: '시티투어/상설투어 프로그램',
-				},
-				{
 					label: '처음으로',
 					action: 'message',
 					messageText: '처음으로',
+				},
+				{
+					label: '다른 투어 보기',
+					action: 'message',
+					messageText: '시티투어/상설투어 프로그램',
 				},
 			],
 		},
