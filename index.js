@@ -1,8 +1,18 @@
 const express = require('express');
+const bodyParser = require('body-parser');
+const path = require('path');
 const { Pool } = require('pg');
 
+const defImg = 'https://yktout-chatbot-web.onrender.com/images/default_tour_image.jpg';
+
+
+
 const app = express();
+
 app.use(express.json());
+
+app.use(bodyParser.json());
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -11,7 +21,7 @@ const pool = new Pool({
   },
 });
 
-const defImg = 'https://example.com/default_tour_image.jpg';
+
 
 app.get('/', (req, res) => {
   res.send('Kakao Chatbot is running.');
