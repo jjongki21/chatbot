@@ -276,28 +276,62 @@ async function getTourCourses(regionCode) {
 	return result.rows; 
 }
 
+const TOUR_MAIN_IMAGE_URL = 'https://YOUR_SERVER_DOMAIN/path/to/gyeongsan_citytour_main.jpg';
+  
+// 경산 시티투어 안내용 상단 카드
+function buildCityTourHeaderCard() {
+	const title = '경산 시티투어 안내';
+	const description =
+		'경산 곳곳의 명소를 하루에 즐기는 관광버스 시티투어입니다 🚌\n\n' +
+		'• 운영기간: 2025년 4월 17일 ~ 12월\n' +
+		'• 출발장소: 임당역 5번 출구 전방 100M 버스정류장\n' +
+		'• 참가비: 1일 5,000원 (교통비 및 가이드 포함)\n\n' +
+		'가볍게 버스만 타고 따라오시면, 경산 구석구석을 안내해 드릴게요.';
+
+	return {
+		basicCard: {
+			title,
+			description,
+			thumbnail: { imageUrl: TOUR_MAIN_IMAGE_URL, },
+			buttons: [
+				{
+					label: '전화 예약',
+					action: 'phone',
+					phoneNumber: '053-819-0333', // 경산문화관광재단 축제관광팀
+				},
+				{
+					label: '온라인 예약',
+					action: 'webLink',
+					webLinkUrl: 'https://gsctf.or.kr/',
+				},
+			],
+		},
+	};
+}
+
 function buildTourCourseListResponse(courses) {
 	if (!courses || courses.length === 0) {
-		return buildSimpleTextResponse('현재 조회 가능한 시티투어 코스가 없습니다 😢\n잠시 후 다시 시도해 주세요.');
+		return buildSimpleTextResponse(
+			'현재 운영 중인 경산 시티투어 코스를 찾지 못했어요 😢\n' +
+			'잠시 후 다시 시도해 주시거나, 경산문화관광재단으로 문의해 주세요.'
+		);
 	}
 
 	const items = courses.slice(0, 10).map(c => {
 		const descLines = [];
 
-		if (c.course_type) descLines.push(`구분: ${c.course_type}`);
-		if (c.course_detail) descLines.push(`코스: ${c.course_detail}`);
-
+		if (c.course_type) descLines.push(`📝 코스 구분: ${c.course_type}`);
+		if (c.course_detail) descLines.push(`🚌 코스 안내\n${c.course_detail}`);
+		
 		const description = descLines.length > 0 ? descLines.join('\n') : '경산시티투어 코스입니다.';
 
 		return {
 			title: c.course_name,
 			description,
-			thumbnail: { imageUrl: defImg, },
+			thumbnail: { imageUrl: TOUR_MAIN_IMAGE_URL, },
 			buttons: [
-				// 버튼은 “경산시티투어 안내보기” 정도로 메시지 트리거만 걸어두고
-				// 실제 안내(전화, 요금, 출발 장소)는 오픈빌더 쪽 블록에서 simpleText로 처리
 				{
-					label: '경산시티투어 안내보기',
+					label: '경산시티투어 안내 다시 보기',
 					action: 'message',
 					messageText: '경산시티투어 안내',
 				},
@@ -309,6 +343,9 @@ function buildTourCourseListResponse(courses) {
 		version: '2.0',
 		template: {
 			outputs: [
+				// 1) 상단 안내 카드
+				buildCityTourHeaderCard(),
+				// 2) 코스 목록 카드 캐러셀
 				{
 					carousel: {
 						type: 'basicCard',
