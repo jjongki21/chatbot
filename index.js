@@ -52,33 +52,12 @@ app.post('/kakao/webhook', async (req, res) => {
 				break;
 			}
 			
-			case 'tour_programs_list_city': {
-				const programTypeCode = 'CITY_TOUR';
-				const programs = await getTourPrograms(regionCode, programTypeCode);
-				kakaoResponse = buildTourProgramListResponse(programs, programTypeCode);
+			case 'tour_programs_list': {
+				const courses = await getTourCourses(regionCode);
+				kakaoResponse = buildTourCourseListResponse(courses);
 				break;
 			}
-			case 'tour_programs_list_luxury': {
-				const programTypeCode = 'LUXURY_TOUR';
-				const programs = await getTourPrograms(regionCode, programTypeCode);
-				kakaoResponse = buildTourProgramListResponse(programs, programTypeCode);
-				break;
-			}
-			case 'tour_programs_list_wish': {
-				const programTypeCode = 'WISH_TOUR';
-				const programs = await getTourPrograms(regionCode, programTypeCode);
-				kakaoResponse = buildTourProgramListResponse(programs, programTypeCode);
-				break;
-			}
-			case 'tour_programs_list_scholar': {
-				const programTypeCode = 'SCHOLAR_TOUR';
-				const programs = await getTourPrograms(regionCode, programTypeCode);
-				kakaoResponse = buildTourProgramListResponse(programs, programTypeCode);
-				break;
-			}
-
-
-				  
+							  
 
 				  case '교통편의_목록': {
 					const categoryCode = getParam(params, 'category_code', 'PARKING');
@@ -277,82 +256,52 @@ function buildTouristSpotCarouselResponse(spots) {
  * 시티투어 / 상설투어 프로그램
  * =============================== */
  
-async function getTourPrograms(regionCode, programTypeCode) {
-	console.log('[투어프로그램목록] region:', regionCode, 'program:', programTypeCode);
-	const query = 
-		`
-		    SELECT id, name_ko, summary, description, route_description, duration, schedule_info,
-				   meeting_point, price, reservation_info, main_image_url, homepage_url, tags, sort_order
-			FROM tour_programs
-			WHERE region_code = $1
-			  AND program_type_code = $2
-			  AND is_active = TRUE
-			ORDER BY sort_order NULLS LAST, name_ko
-			LIMIT 10;
-		`;
+async function getTourCourses(regionCode) {
+	console.log('Tour Course Region Code:', regionCode);
 
-	const values = [regionCode, programTypeCode];
-	const result = await pool.query(query, values);
-	
-	console.log('Programs Length =', result.rows);
-	return result.rows;
+	const text = `
+		SELECT id, region_code, course_name, course_type, course_detail, sort_order
+		FROM tour_courses
+		WHERE region_code = $1
+		  AND is_active = TRUE
+		ORDER BY sort_order NULLS LAST, course_name;
+	`;
+
+	const values = [regionCode];
+	console.log('Query values:', values);
+
+	const result = await pool.query({ text, values });
+	console.log('Row Count:', result.rowCount);
+
+	return result.rows; 
 }
 
-function buildTourProgramListResponse(programs, programTypeCode) {
-	if (!programs || programs.length === 0) {
-		return buildSimpleTextResponse(
-			'해당 종류의 투어 프로그램 정보를 찾지 못했어요 😢\n다른 투어를 선택해 주세요.'
-		);
+function buildTourCourseListResponse(courses) {
+	if (!courses || courses.length === 0) {
+		return buildSimpleTextResponse('현재 조회 가능한 시티투어 코스가 없습니다 😢\n잠시 후 다시 시도해 주세요.');
 	}
-	
-	const items = programs.slice(0, 10).map(p => {
+
+	const items = courses.slice(0, 10).map(c => {
 		const descLines = [];
-		
-		if (p.summary) descLines.push(p.summary);
-		if (p.duration) descLines.push(`⏱ 소요시간: ${p.duration}`);
-		if (p.schedule_info) descLines.push(`🕒 운영: ${p.schedule_info}`);
-		if (p.meeting_point) descLines.push(`📍 출발: ${p.meeting_point}`);
 
-		const description = descLines.length > 0 ? descLines.join('\n') : `${typeLabel} 프로그램입니다.`;
+		if (c.course_type) descLines.push(`구분: ${c.course_type}`);
+		if (c.course_detail) descLines.push(`코스: ${c.course_detail}`);
 
-		const buttons = [];
-
-		// 웹페이지 보기
-		if (p.homepage_url) {
-			buttons.push({
-				label: '웹페이지 보기',
-				action: 'webLink',
-				webLinkUrl: p.homepage_url,
-			});
-		}
-
-		// 전화 문의
-		if (p.reservation_info && /[0-9]{2,4}-[0-9]{3,4}-[0-9]{4}/.test(p.reservation_info)) {
-		// 예약 안내문 안에 전화번호가 섞여 있을 수도 있어서, 정규식으로 추출
-			const phoneMatch = p.reservation_info.match(/[0-9]{2,4}-[0-9]{3,4}-[0-9]{4}/);
-			if (phoneMatch) {
-				buttons.push({
-					label: '전화 문의',
-					action: 'phone',
-					phoneNumber: phoneMatch[0],
-				});
-			}
-		}
-
-		// 버튼이 하나도 없으면, 안내용 버튼 하나라도 추가
-		if (buttons.length === 0) {
-			buttons.push({
-				label: '상세 안내 문의',
-				action: 'message',
-				messageText: `${typeLabel} 문의`,
-			});
-		}
+		const description = descLines.length > 0 ? descLines.join('\n') : '경산시티투어 코스입니다.';
 
 		return {
-			title: p.name_ko,
+			title: c.course_name,
 			description,
-			thumbnail: { imageUrl: p.main_image_url || defImg, },
-			buttons,
+			thumbnail: { imageUrl: defImg, },
+			buttons: [
+				// 버튼은 “경산시티투어 안내보기” 정도로 메시지 트리거만 걸어두고
+				// 실제 안내(전화, 요금, 출발 장소)는 오픈빌더 쪽 블록에서 simpleText로 처리
+				{
+					label: '경산시티투어 안내보기',
+					action: 'message',
+					messageText: '경산시티투어 안내',
+				},
+			],
 		};
 	});
 
@@ -372,11 +321,6 @@ function buildTourProgramListResponse(programs, programTypeCode) {
 					label: '처음으로',
 					action: 'message',
 					messageText: '처음으로',
-				},
-				{
-					label: '다른 투어 보기',
-					action: 'message',
-					messageText: '시티투어/상설투어 프로그램',
 				},
 			],
 		},
