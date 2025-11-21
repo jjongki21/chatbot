@@ -3,7 +3,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const { Pool } = require('pg');
 
-const defImg = 'https://yktout-chatbot-web.onrender.com/images/default_tour_image.jpg';
+const defImg = 'https://yktout-chatbot-web.onrender.com/images/kyeongsan_m_1_info.png';
 
 
 
@@ -286,7 +286,7 @@ async function getTourCourses(regionCode) {
 	return result.rows; 
 }
 
-const TOUR_MAIN_IMAGE_URL = 'https://YOUR_SERVER_DOMAIN/path/to/gyeongsan_citytour_main.jpg';
+const TOUR_MAIN_IMAGE_URL = 'https://yktout-chatbot-web.onrender.com/images/program_main.png';
   
 // 경산 시티투어 안내용 상단 카드
 function buildCityTourHeaderCard() {
