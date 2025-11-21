@@ -154,6 +154,7 @@ function buildNaverMapUrl(spot) {
   return `https://map.naver.com/v5/search/${encoded}`;
 }
 
+const normalizeText = (text) => text.replace(/\\n/g, "\n");
 
 
 /* ===============================
@@ -190,7 +191,10 @@ function buildTouristSpotCarouselResponse(spots) {
 		// 설명 : 요약 + 주소
 		const descLines = [];
 		if (s.summary) descLines.push(s.summary);
-		if (s.address) descLines.push(`📍 ${s.address}`);
+		if (s.address) {
+			descLines.push('\n');
+			descLines.push(`📍 ${s.address}`);
+		}
 		const description = descLines.join('\n');
 
 		// 네이버 지도 URL
@@ -295,7 +299,6 @@ function buildCityTourHeaderCard() {
 		'경산 곳곳의 명소를 하루에 즐기는 관광버스 시티투어입니다 🚌\n\n' +
 		'• 운영기간: 2025년 4월 17일 ~ 12월\n' +
 		'• 출발장소: 임당역 5번 출구 전방 100M 버스정류장\n' +
-		'• 참가비: 1일 5,000원 (교통비 및 가이드 포함)\n\n' +
 		'가볍게 버스만 타고 따라오시면, 경산 구석구석을 안내해 드릴게요.';
 
 	return {
@@ -331,7 +334,10 @@ function buildTourCourseListResponse(courses) {
 		const descLines = [];
 
 		if (c.course_type) descLines.push(`📝 코스 구분: ${c.course_type}`);
-		if (c.course_detail) descLines.push(`🚌 코스 안내\n${c.course_detail}`);
+		if (c.course_detail) {
+			let detail = normalizeText(c.course_detail);
+			descLines.push(`🚌 코스 안내\n${detail}`);
+		}
 		
 		const description = descLines.length > 0 ? descLines.join('\n') : '경산시티투어 코스입니다.';
 
