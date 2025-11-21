@@ -260,7 +260,7 @@ async function getTourCourses(regionCode) {
 	console.log('Tour Course Region Code:', regionCode);
 
 	const text = `
-		SELECT id, region_code, course_name, course_type, course_detail, sort_order
+		SELECT id, region_code, course_name, course_type, course_detail, course_image_url, sort_order
 		FROM tour_courses
 		WHERE region_code = $1
 		  AND is_active = TRUE
@@ -328,14 +328,7 @@ function buildTourCourseListResponse(courses) {
 		return {
 			title: c.course_name,
 			description,
-			thumbnail: { imageUrl: TOUR_MAIN_IMAGE_URL, },
-			buttons: [
-				{
-					label: '경산시티투어 안내 다시 보기',
-					action: 'message',
-					messageText: '경산시티투어 안내',
-				},
-			],
+			thumbnail: { imageUrl: c.course_image_url || TOUR_MAIN_IMAGE_URL, },
 		};
 	});
 
