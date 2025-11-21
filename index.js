@@ -335,7 +335,7 @@ function buildTourCourseListResponse(courses) {
 
 		if (c.course_type) descLines.push(`📝 코스 구분: ${c.course_type}`);
 		if (c.course_detail) {
-			let detail = normalizeText(c.course_detail);
+			const detail = normalizeText(c.course_detail);
 			descLines.push(`🚌 코스 안내\n${detail}`);
 		}
 		
