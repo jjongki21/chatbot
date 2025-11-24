@@ -226,6 +226,7 @@ function buildNaverMapLauncherUrl(name, lat, lng) {
 const normalizeText = (text) => text.replace(/\\n/g, "\n");
 
 
+
 /* ===============================
  * 관광지 목록
  * =============================== */
