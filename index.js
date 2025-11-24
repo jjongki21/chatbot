@@ -87,7 +87,7 @@ app.post('/kakao/webhook', async (req, res) => {
 				break;
 			}
 			
-			case 'transport_info_list_route' {
+			case 'transport_info_list_route': {
 				
 				break;
 			}
