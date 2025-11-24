@@ -3,7 +3,8 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const { Pool } = require('pg');
 
-const defImg = 'https://yktout-chatbot-web.onrender.com/images/kyeongsan_m_1_info.png';
+const defURL = 'https://yktout-chatbot-web.onrender.com';
+const defImg = defURL + '/images/kyeongsan_m_1_info.png';
 
 
 
@@ -111,12 +112,74 @@ app.post('/kakao/webhook', async (req, res) => {
 	}
 });
 
+app.get('/openmap', (req, res) => {
+	const { lat, lng, name } = req.query;
+
+	const userAgent = req.headers['user-agent'] || '';
+	const isIOS = /iPhone|iPad|iPod/i.test(userAgent);
+	const isAndroid = /Android/i.test(userAgent);
+
+	const safeLat = lat || '';
+	const safeLng = lng || '';
+	const safeName = name || '';
+
+	res.send(`
+		<!DOCTYPE html>
+		<html lang="ko">
+		<head>
+			<meta charset="utf-8" />
+			<title>네이버 지도 열기</title>
+			<meta name="viewport" content="width=device-width, initial-scale=1" />
+			
+			<script>
+				// 서버에서 내려준 값들
+				var LAT = ${JSON.stringify(safeLat)};
+				var LNG = ${JSON.stringify(safeLng)};
+				var NAME = ${JSON.stringify(safeName)};
+				var IS_IOS = ${isIOS ? 'true' : 'false'};
+				var IS_ANDROID = ${isAndroid ? 'true' : 'false'};
+
+				function openNaverMap() {
+					var encodedName = encodeURIComponent(NAME || "");
+
+					// 네이버 지도 앱 스킴 (iOS/Android 둘 다 사용 가능)
+					var appUrl = "nmap://route/car?dlat=" + LAT + "&dlng=" + LNG + "&dname=" + encodedName;
+
+					// 네이버 지도 웹 (앱 없거나 앱 실행 실패 시)
+					var webUrl = "https://map.naver.com/v5/directions/-/" + LNG + "," + LAT + "," + encodedName;
+
+					var start = Date.now();
+
+					// 1) 앱 열기 시도
+					window.location.href = appUrl;
+
+					// 2) 일정 시간 내에 앱이 안 열리면 웹으로 이동
+					setTimeout(function() {
+					var elapsed = Date.now() - start;
+					// 인앱 브라우저에 따라 항상 정확하진 않지만, 앱이 없어서 바로 복귀한 경우를 대략적으로 잡는 용도
+						if (elapsed < 1500) {
+							window.location.href = webUrl;
+						}
+					}, 1200);
+				}
+
+				window.onload = openNaverMap;
+			</script>
+		</head>
+		<body>
+		</body>
+		</html>`
+	);
+});
+
+
+
+
 
 /* ===============================
  * 기본 함수들
  * =============================== */
  
-// 단순 텍스트 응답
 function buildSimpleTextResponse(text) {
 	return {
 		version: '2.0',
@@ -145,13 +208,19 @@ function getParam(params, name, defaultValue) {
 	return defaultValue;
 }
 
-function buildNaverMapUrl(spot) {
-  const keyword = spot.address
-    ? `${spot.name_ko} ${spot.address}`
-    : spot.name_ko;
+function buildNaverMapLauncherUrl(name, lat, lng) {
+	const nName = name || '';
+	const nLat = lat || '';
+	const nLng = lng || '';
 
-  const encoded = encodeURIComponent(keyword);
-  return `https://map.naver.com/v5/search/${encoded}`;
+	const base = defURL + '/openmap';
+
+	const params =
+		'name=' + encodeURIComponent(nName) +
+		'&lat=' + encodeURIComponent(nLat) +
+		'&lng=' + encodeURIComponent(nLng);
+
+	return `${base}?${params}`;
 }
 
 const normalizeText = (text) => text.replace(/\\n/g, "\n");
@@ -194,30 +263,23 @@ function buildTouristSpotCarouselResponse(spots) {
 		if (s.address) descLines.push(`📍 ${s.address}`);
 		
 		const description = descLines.join('\n');
-
-		// 네이버 지도 URL
-		const naverMapUrl = buildNaverMapUrl(s);
-		
-		// 웹페이지 URL (없으면 네이버 지도나 기본 페이지로 대체)
+		const naverMapUrl = buildNaverMapLauncherUrl(s.name_ko, s.latitude, s.longitude);
 		const homepageUrl = s.homepage_url || naverMapUrl;
 
 		const buttons = [];
 
-		// 1) 웹페이지 링크 버튼
 		buttons.push({
 			label: '웹페이지 보기',
 			action: 'webLink',
 			webLinkUrl: homepageUrl,
 		});
 
-		// 2) 네이버지도 경로 버튼
 		buttons.push({
 			label: '네이버지도 경로',
 			action: 'webLink',
 			webLinkUrl: naverMapUrl,
 		});
 
-		// 3) 연락처 버튼 (전화가 있을 때만)
 		if (s.phone) {
 			buttons.push({
 				label: '전화하기',
@@ -288,9 +350,8 @@ async function getTourCourses(regionCode) {
 	return result.rows; 
 }
 
-const TOUR_MAIN_IMAGE_URL = 'https://yktout-chatbot-web.onrender.com/images/program_main.png';
+const TOUR_MAIN_IMAGE_URL = defURL + '/images/program_main.png';
   
-// 경산 시티투어 안내용 상단 카드
 function buildCityTourHeaderCard() {
 	const title = '경산 시티투어 안내';
 	const description =
@@ -350,9 +411,8 @@ function buildTourCourseListResponse(courses) {
 		version: '2.0',
 		template: {
 			outputs: [
-				// 1) 상단 안내 카드
 				buildCityTourHeaderCard(),
-				// 2) 코스 목록 카드 캐러셀
+				// 코스 목록 카드 캐러셀
 				{
 					carousel: {
 						type: 'basicCard',
