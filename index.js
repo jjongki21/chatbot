@@ -6,29 +6,29 @@ const { Pool } = require('pg');
 const defURL = 'https://yktout-chatbot-web.onrender.com';
 const defImg = defURL + '/images/kyeongsan_m_1_info.png';
 
-
-
 const app = express();
 
 app.use(express.json());
-
 app.use(bodyParser.json());
 app.use('/images', express.static(path.join(__dirname, 'images')));
 
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false, // ※ Render Postgres 기본 설정
-  },
+	connectionString: process.env.DATABASE_URL,
+	ssl: {
+		rejectUnauthorized: false, // ※ Render Postgres 기본 설정
+	},
 });
-
-
 
 app.get('/', (req, res) => {
   res.send('Kakao Chatbot is running.');
 });
 
-console.log('Connection Running');
+console.log('Kakao Chatbot is Running');
+
+
+/* ===============================
+ * 카카오톡 챗봇 웹훅
+ * =============================== */
 
 app.post('/kakao/webhook', async (req, res) => {
 	try {
@@ -68,18 +68,29 @@ app.post('/kakao/webhook', async (req, res) => {
 				kakaoResponse = buildTourCourseListResponse(courses);
 				break;
 			}
-							  
+					
+			case 'transport_info_list_parking': {
+				const categoryCode = 'PARKING';
+				const spots = await getTouristSpots(regionCode, categoryCode);
+				kakaoResponse = buildTouristSpotCarouselResponse(spots, categoryCode);
+				break;
+			}
+			case 'transport_info_list_center': {
+				const categoryCode = 'INFORMATION';
+				const spots = await getTouristSpots(regionCode, categoryCode);
+				kakaoResponse = buildTouristSpotCarouselResponse(spots, categoryCode);
+				break;
+			}					
 
-				  case '교통편의_목록': {
-					const categoryCode = getParam(params, 'category_code', 'PARKING');
-					console.log('[교통편의_목록] region:', regionCode, 'category:', categoryCode);
-
-					const items = await getTransportInfo(regionCode, categoryCode);
-					console.log('items.length =', items.length);
-
-					kakaoResponse = buildTransportListResponse(items, categoryCode);
-					break;
-				  }
+			case 'transport_info_list_bus': {
+				
+				break;
+			}
+			
+			case 'transport_info_list_route' {
+				
+				break;
+			}
 
 				  case 'FAQ_목록': {
 					const faqCategoryCode = getParam(params, 'category_code', null);
@@ -112,6 +123,11 @@ app.post('/kakao/webhook', async (req, res) => {
 	}
 });
 
+
+/* ===============================
+ * 지도 버튼 응답
+ * =============================== */
+ 
 app.get('/openmap', (req, res) => {
 	const { lat, lng, name } = req.query;
 
@@ -326,11 +342,12 @@ function buildTouristSpotCarouselResponse(spots) {
 
 
 
-
 /* ===============================
  * 시티투어 / 상설투어 프로그램
  * =============================== */
  
+const TOUR_MAIN_IMAGE_URL = defURL + '/images/program_main.png';
+
 async function getTourCourses(regionCode) {
 	console.log('Tour Course Region Code:', regionCode);
 
@@ -350,8 +367,6 @@ async function getTourCourses(regionCode) {
 
 	return result.rows; 
 }
-
-const TOUR_MAIN_IMAGE_URL = defURL + '/images/program_main.png';
   
 function buildCityTourHeaderCard() {
 	const title = '경산 시티투어 안내';
@@ -434,12 +449,14 @@ function buildTourCourseListResponse(courses) {
 
 
 
+/* ===============================
+ * 관광지 목록
+ * =============================== */
 
 
 
 
-
-// 교통/편의 정보 목록 조회
+// 교통·편의 정보 목록 조회
 async function getTransportInfo(regionCode, categoryCode) {
   const query = `
     SELECT id, name_ko, summary, main_image_url, address
