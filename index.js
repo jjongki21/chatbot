@@ -191,10 +191,8 @@ function buildTouristSpotCarouselResponse(spots) {
 		// 설명 : 요약 + 주소
 		const descLines = [];
 		if (s.summary) descLines.push(s.summary);
-		if (s.address) {
-			descLines.push('\n');
-			descLines.push(`📍 ${s.address}`);
-		}
+		if (s.address) descLines.push(`📍 ${s.address}`);
+		
 		const description = descLines.join('\n');
 
 		// 네이버 지도 URL
