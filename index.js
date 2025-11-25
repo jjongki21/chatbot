@@ -198,13 +198,13 @@ app.post('/kakao/webhook', async (req, res) => {
 				break;
 			}
 			//       └ 이동경로 - 출발지기준
-			case 'TRANS_ROUTE_THEME': {
+			case 'TRANS_ROUTE_HUB': {
 				const routes = await getTravelRoutes(regionCode, 'HUB');
 				kakaoResponse = buildTravelRouteListResponse(routes, 'HUB');
 				break;
 			}
 			//       └ 이동경로 - 코스형
-			case 'TRANS_ROUTE_THEME': {
+			case 'TRANS_ROUTE_COURSE': {
 				const routes = await getTravelRoutes(regionCode, 'COURSE');
 				kakaoResponse = buildTravelRouteListResponse(routes, 'COURSE');
 				break;
