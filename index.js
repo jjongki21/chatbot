@@ -676,11 +676,11 @@ function buildTrafficInfoResponse(regionCode) {
 	//if (regionCode == 'gyeongsan') {
 		
 		const text = '이동이 편한 경산 여행! 어디든 도와드릴게요 🚆🚌\n필요한 정보를 선택해 주세요 👇';
-		console.log('처음으로',	FirstUtterance("MAIN");
-		console.log('주차장',	FirstUtterance("TRANS_PARKING");
-		console.log('버스',		FirstUtterance("TRANS_BUS");
-		console.log('관광안내소',	FirstUtterance("TRANS_CENTER");
-		console.log('이동동선',	FirstUtterance("TRANS_ROUTE");
+		console.log('처음으로',	FirstUtterance("MAIN"));
+		console.log('주차장',	FirstUtterance("TRANS_PARKING"));
+		console.log('버스',		FirstUtterance("TRANS_BUS"));
+		console.log('관광안내소',	FirstUtterance("TRANS_CENTER"));
+		console.log('이동동선',	FirstUtterance("TRANS_ROUTE"));
 
 		return {
 			version: '2.0',
