@@ -330,7 +330,7 @@ function buildMainMenuResponse(regionCode) {
 									title: '투어 프로그램 안내',
 									description: '테마별 여행 코스를 편하게 즐겨보세요!',
 									thumbnail: {
-										imageUrl: `${defURL}/images/kyeongsan_m_2_info.png`,
+										imageUrl: `${defURL}/images/kyeongsan_m_2_tour.png`,
 									},
 									buttons: [
 										{
@@ -345,7 +345,7 @@ function buildMainMenuResponse(regionCode) {
 									title: '교통·편의 정보',
 									description: '주차장·버스·안내소 위치를 쉽게 찾아보세요.',
 									thumbnail: {
-										imageUrl: `${defURL}/images/kyeongsan_m_3_info.png`,
+										imageUrl: `${defURL}/images/kyeongsan_m_3_traffic.png`,
 									},
 									buttons: [
 										{
@@ -360,7 +360,7 @@ function buildMainMenuResponse(regionCode) {
 									title: '자주 묻는 질문',
 									description: '여행 중 자주 물어보는 정보를 모았어요.',
 									thumbnail: {
-										imageUrl: `${defURL}/images/kyeongsan_m_4_info.png`,
+										imageUrl: `${defURL}/images/kyeongsan_m_4_faq.png`,
 									},
 									buttons: [
 										{
@@ -911,7 +911,7 @@ function buildBusRouteDetailResponse(route) {
 						title: `${route.route_number}번`,
 						description,
 						thumbnail: {
-							imageUrl: `${defURL}/images/bus_default.png`,
+							imageUrl: `${defURL}/images/kyeongsan_m_3_traffic.png`,
 						},
 						buttons,
 					},
