@@ -910,13 +910,13 @@ function buildBusRouteDetailResponse(route) {
 	const typeLabel = getBusRouteTypeLabel(route.route_type);
 	
 	const descLines = [];
-	descLines.push(`노선번호: ${route.route_number} (${typeLabel})`);
-	descLines.push(`출발지: ${route.origin_name}`);
-	descLines.push(`도착지: ${route.destination_name}`);
+	descLines.push(`🚍노선번호: ${route.route_number} (${typeLabel})`);
+	descLines.push(`🚩출발지: ${route.origin_name}`);
+	descLines.push(`🎯도착지: ${route.destination_name}`);
 
-	if (route.interval_info) descLines.push(`배차간격: ${route.interval_info}`);
+	if (route.interval_info) descLines.push(`⏱배차간격: ${route.interval_info}`);
 	if (route.first_bus_time || route.last_bus_time) {
-		descLines.push(`첫차/막차: ${route.first_bus_time || '-'} ~ ${route.last_bus_time || '-'}`);
+		descLines.push(`🕒첫차/막차: ${route.first_bus_time || '-'} ~ ${route.last_bus_time || '-'}`);
 	}
 
 	const description = descLines.join('\n');
