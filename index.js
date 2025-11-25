@@ -443,12 +443,12 @@ function buildTourCourseListResponse(courses) {
 
 
 /* ===============================
- * 관광지 목록
+ * 교통 및 편의정보 목록
  * =============================== */
 
 function buildParkingCarouselResponse(spots) {
 	if (!spots || spots.length === 0) {
-		return buildSimpleTextResponse('해당 카테고리의 관광지 정보를 찾지 못했어요 😢\n다른 유형을 선택해 주세요.');
+		return buildSimpleTextResponse('해당 카테고리의 정보를 찾지 못했어요 😢\n다른 유형을 선택해 주세요.');
 	}
 
 	// BasicCard 캐러셀 아이템 생성
@@ -484,12 +484,21 @@ function buildParkingCarouselResponse(spots) {
 			});
 		}
 
-		return {
-			title: s.name_ko,
-			description: description || '교통 및 편의 정보입니다.',
-			thumbnail: { imageUrl: c.course_image_url, },
-			buttons,
-		};
+		if (s.main_image_url) {
+			return {
+				title: s.name_ko,
+				description: description || '교통 및 편의정보입니다.',
+				thumbnail: { imageUrl: s.main_image_url || defImg, },
+				buttons,
+			};
+		}
+		else {
+			return {
+				title: s.name_ko,
+				description: description || '교통 및 편의정보입니다.',
+				buttons,
+			};
+		}
 	});
 
 	return {
@@ -513,7 +522,7 @@ function buildParkingCarouselResponse(spots) {
 					label: '다른 유형 보기',
 					action: 'message',
 					messageText: '교통 및 편의 정보 알려줘',
-				},
+				},        
 			],
 		},
 	};
