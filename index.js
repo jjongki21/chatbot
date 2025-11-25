@@ -450,7 +450,7 @@ function buildTouristSpotsResponse(regionCode) {
 					{
 						label: '처음으로',
 						action: 'message',
-						messageText: getBlockByMenu("TOUR_MAIN").utterances[0],
+						messageText: getBlockByMenu("MAIN").utterances[0],
 					},
 				],
 			},
