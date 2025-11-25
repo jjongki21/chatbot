@@ -46,7 +46,7 @@ const BlockList = [
 	new BlockInfo('TOUR_NATURE',		'tourist_spots_list_nature', 		'NATURE_WALK', 			['산책명소/자연경관', '산책명소', '자연경관']),
 	new BlockInfo('TOUR_FESTIVAL',		'tourist_spots_list_festival', 		'FESTIVAL_ACTIVITY', 	['축제/체험/볼거리', '축제', '체험', '볼거리']),
 	new BlockInfo('PROGRAMS',			'tour_programs_list', 				'PROGRAMS', 			['투어 프로그램', '투어 프로그램 알려줘', '투어']),
-	new BlockInfo('TRANSPORT',			'transport_info', 					'TRANSPORT', 			['교통편의정보', '교통 및 편의 정보 알려줘', '편의정보', '교통정보']),
+	new BlockInfo('TRANSPORT',			'transport_info_main', 				'TRANSPORT', 			['교통편의정보', '교통 및 편의 정보 알려줘', '편의정보', '교통정보']),
 	new BlockInfo('TRANS_PARKING',		'transport_info_list_parking', 		'PARKING', 				['주차장 정보', '주차장', '주차장 알려줘']),
 	new BlockInfo('TRANS_CENTER',		'transport_info_list_center', 		'INFORMATION', 			['관광안내소 정보', '관광안내소', '관광안내소 알려줘']),
 	new BlockInfo('TRANS_ROUTE',		'transport_info_list_route', 		'ROUTE', 				['이동동선', '이동동선 알려줘']),
