@@ -6,8 +6,6 @@ const { Pool } = require('pg');
 const defURL = 'https://yktout-chatbot-web.onrender.com';
 const defImg = `${defURL}/images/kyeongsan_m_1_info.png`;
 
-console.log(defImg);
-
 const app = express();
 
 app.use(express.json());
@@ -175,11 +173,8 @@ app.post('/kakao/webhook', async (req, res) => {
 			}
 			//       └ 버스 상세 정보
 			case 'TRANS_BUS_DETAIL': {
-				console.log("TRANS_BUS_DETAIL 1");
-				
 				let routeNumber = getParam(params, 'route_number', null);
-				console.log("TRANS_BUS_DETAIL 2 ", routeNumber);
-
+				
 				if (!routeNumber && body.userRequest && body.userRequest.utterance) {
 					routeNumber = body.userRequest.utterance.trim();
 				}
@@ -207,7 +202,7 @@ app.post('/kakao/webhook', async (req, res) => {
 				  }
 
 			default: {
-				console.log('⚠ 알 수 없는 intentName:', intentName);
+				console.log('알 수 없는 intentName:', intentName);
 				kakaoResponse = buildSimpleTextResponse(
 					'요청하신 내용을 이해하기가 조금 어려워요 😅\n메뉴에서 관광지 안내, 시티투어, 교통정보, FAQ 중 하나를 다시 선택해 주세요.'
 				);
@@ -469,7 +464,6 @@ function buildTouristSpotsMenuResponse(regionCode) {
 }
 
 async function getTouristSpots(regionCode, categoryCode) {
-	console.log('[관광지목록] region:', regionCode, 'category:', categoryCode);
 	const query = 
 		`
 			SELECT id, name_ko, summary, main_image_url, address, phone, homepage_Url
@@ -484,7 +478,6 @@ async function getTouristSpots(regionCode, categoryCode) {
 	const values = [regionCode, categoryCode];
 	const result = await pool.query(query, values);
 	
-	console.log('Spots Length =', result.rows);
 	return result.rows;
 }
 
@@ -569,8 +562,6 @@ function buildTouristSpotCarouselResponse(spots) {
 const TOUR_MAIN_IMAGE_URL = `${defURL}/images/program_main.png`;
 
 async function getTourCourses(regionCode) {
-	console.log('Tour Course Region Code:', regionCode);
-
 	const text = `
 		SELECT id, region_code, course_name, course_type, course_detail, course_image_url, sort_order
 		FROM tour_courses
@@ -580,11 +571,8 @@ async function getTourCourses(regionCode) {
 	`;
 
 	const values = [regionCode];
-	console.log('Query values:', values);
-
 	const result = await pool.query({ text, values });
-	console.log('Row Count:', result.rowCount);
-
+	
 	return result.rows; 
 }
   
@@ -846,8 +834,6 @@ function buildBusMenuResponse(regionCode) {
 }
 
 async function getBusRouteNumbersByType(regionCode, routeType) {
-	console.log('▶ getBusRouteNumbersByType()', regionCode, routeType);
-
 	const text = `
 		SELECT DISTINCT route_number
 			FROM bus_routes
@@ -859,14 +845,11 @@ async function getBusRouteNumbersByType(regionCode, routeType) {
 	
 	const values = [regionCode, routeType];
 	const result = await pool.query({ text, values });
-	console.log('  rowCount =', result.rowCount);
-
+	
 	return result.rows.map(r => r.route_number);
 }
 
 async function getBusRouteDetail(regionCode, routeNumber) {
-	console.log('▶ getBusRouteDetail()', regionCode, routeNumber);
-
 	const text = `
 		SELECT id, region_code, route_number, route_type, origin_name, destination_name,
 			   interval_info, first_bus_time, last_bus_time, weekday_timetable_url, holiday_timetable_url,
@@ -880,8 +863,7 @@ async function getBusRouteDetail(regionCode, routeNumber) {
 		
 	const values = [regionCode, routeNumber];
 	const result = await pool.query({ text, values });
-	console.log('  rowCount =', result.rowCount);
-
+	
 	return result.rows[0] || null;
 }
 
