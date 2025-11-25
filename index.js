@@ -70,13 +70,13 @@ app.post('/kakao/webhook', async (req, res) => {
 			case 'transport_info_list_parking': {
 				const categoryCode = 'PARKING';
 				const spots = await getTouristSpots(regionCode, categoryCode);
-				kakaoResponse = buildTouristSpotCarouselResponse(spots, categoryCode);
+				kakaoResponse = buildParkingCarouselResponse(spots, categoryCode);
 				break;
 			}
 			case 'transport_info_list_center': {
 				const categoryCode = 'INFORMATION';
 				const spots = await getTouristSpots(regionCode, categoryCode);
-				kakaoResponse = buildTouristSpotCarouselResponse(spots, categoryCode);
+				kakaoResponse = buildParkingCarouselResponse(spots, categoryCode);
 				break;
 			}					
 
@@ -486,7 +486,8 @@ function buildParkingCarouselResponse(spots) {
 
 		return {
 			title: s.name_ko,
-			description: description || '관광지 정보입니다.',
+			description: description || '교통 및 편의 정보입니다.',
+			thumbnail: { imageUrl: c.course_image_url, },
 			buttons,
 		};
 	});
