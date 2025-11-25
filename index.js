@@ -662,15 +662,13 @@ function buildTourCourseCarouseResponse(regionCode, courses) {
  
 function buildTransportInfoMenuResponse(regionCode) {
 	//if (regionCode === 'gyeongsan') {
-		const text = '이동이 편한 경산 여행! 어디든 도와드릴게요 🚆🚌\n필요한 정보를 선택해 주세요 👇';
-
 		return {
 			version: '2.0',
 			template: {
 				outputs: [
 					{
-						basicCard: {
-							description: text,
+						simpleText: {
+							text: `이동이 편한 경산 여행! 어디든 도와드릴게요 🚆🚌\n필요한 정보를 선택해 주세요 👇`,
 						},
 					},
 				],
@@ -886,7 +884,7 @@ function buildBusRouteQuickReplies(routeType, routeNumbers) {
 			outputs: [
 				{
 					simpleText: {
-						text: `${typeLabel} 노선을 선택해 주세요.\n원하시는 버스 번호를 누르시면 상세 정보를 안내해 드릴게요.`,
+						text: `🚌 ${typeLabel} 노선을 선택해 주세요.\n👉 번호를 누르시면 상세 정보를 안내해 드릴게요.😊`,
 					},
 				},
 			],
@@ -914,12 +912,12 @@ function buildBusRouteDetailResponse(route) {
 	descLines.push(`🚩출발지: ${route.origin_name}`);
 	descLines.push(`🎯도착지: ${route.destination_name}`);
 
-	if (route.interval_info) descLines.push(`⏱배차간격: ${route.interval_info}`);
+	if (route.interval_info) descLines.push(`🔁배차간격: ${route.interval_info}`);
 	if (route.first_bus_time || route.last_bus_time) {
 		descLines.push(`🕒첫차/막차: ${route.first_bus_time || '-'} ~ ${route.last_bus_time || '-'}`);
 	}
 
-	const description = descLines.join('\n');
+	const description = normalizeText(descLines.join('\n'));
 	
 	const buttons = [];
 	if (route.weekday_timetable_url) {
