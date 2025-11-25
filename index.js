@@ -30,7 +30,7 @@ app.get('/', (req, res) => {
  * 카카오톡 챗봇 발화목록  : 오픈빌더에서의 블록명, 발화와 내용 통일 할 것
  * =============================== */
  
- class BlockInfo {
+class BlockInfo {
 	constructor(menu, blockName, category = '', utterances = []) {
 		this.menu = menu;				// 하단에서 처리할 메뉴 (고정)
 		this.blockName = blockName;     // 블록명
@@ -332,8 +332,7 @@ const normalizeText = (text) => text.replace(/\\n/g, "\n");
 
 
 function buildMainMenuResponse(regionCode) {
-	//if (regionCode == 'gyeongsan')
-	//{
+	//if (regionCode === 'gyeongsan') {
 		return {
 			version: '2.0',
 			template: {
@@ -425,8 +424,7 @@ function buildMainMenuResponse(regionCode) {
  * =============================== */
  
 function buildTouristSpotsResponse(regionCode) {
-	//if (regionCode == 'gyeongsan')
-	//{
+	//if (regionCode === 'gyeongsan') {
 		const text = '경산의 명소들을 소개해드릴게요!\n원하시는 관광지 유형을 선택해 주세요 👇';
 
 		return {
@@ -673,8 +671,7 @@ function buildTourCourseListResponse(regionCode, courses) {
  * =============================== */
  
 function buildTrafficInfoResponse(regionCode) {
-	//if (regionCode == 'gyeongsan') {
-		
+	//if (regionCode === 'gyeongsan') {
 		const text = '이동이 편한 경산 여행! 어디든 도와드릴게요 🚆🚌\n필요한 정보를 선택해 주세요 👇';
 		
 		return {
@@ -682,7 +679,9 @@ function buildTrafficInfoResponse(regionCode) {
 			template: {
 				outputs: [
 					{
-						simpleText: { text,  },
+						basicCard: {
+							description: text,
+						},
 					},
 				],
 				quickReplies: [
