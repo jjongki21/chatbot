@@ -31,7 +31,7 @@ app.get('/', (req, res) => {
  * =============================== */
  
  class BlockInfo {
-	constructor(menu, blockName, category = "", utterances = []) {
+	constructor(menu, blockName, category = '', utterances = []) {
 		this.menu = menu;				// 하단에서 처리할 메뉴 (고정)
 		this.blockName = blockName;     // 블록명
 		this.category = category;       // 카테고리
@@ -40,22 +40,22 @@ app.get('/', (req, res) => {
 }
 
 const BlockList = [
-	new BlockInfo("MAIN",				"main", 							"MAIN", 				["처음으로", "시작", "처음"]),
-	new BlockInfo("TOUR_MAIN",			"tourist_spots", 					"TOUR_MAIN", 			["관광지 안내", "관광", "관광지", "관광지 안내 해줘"]),
-	new BlockInfo("TOUR_CULTURE",		"tourist_spots_list_culture", 		"CULTURAL_TEMPLE", 		["문화유적/사찰", "문화유적", "사찰"]),
-	new BlockInfo("TOUR_NATURE",		"tourist_spots_list_nature", 		"NATURE_WALK", 			["산책명소/자연경관", "산책명소", "자연경관"]),
-	new BlockInfo("TOUR_FESTIVAL",		"tourist_spots_list_festival", 		"FESTIVAL_ACTIVITY", 	["축제/체험/볼거리", "축제", "체험", "볼거리"]),
-	new BlockInfo("PROGRAMS",			"tour_programs_list", 				"PROGRAMS", 			["투어 프로그램", "투어 프로그램 알려줘", "투어"]),
-	new BlockInfo("TRANSPORT",			"transport_info", 					"TRANSPORT", 			["교통편의정보", "교통 및 편의 정보 알려줘", "편의정보", "교통정보"]),
-	new BlockInfo("TRANS_PARKING",		"transport_info_list_parking", 		"PARKING", 				["주차장 정보", "주차장", "주차장 알려줘"]),
-	new BlockInfo("TRANS_CENTER",		"transport_info_list_center", 		"INFORMATION", 			["관광안내소 정보", "관광안내소", "관광안내소 알려줘"]),
-	new BlockInfo("TRANS_ROUTE",		"transport_info_list_route", 		"ROUTE", 				["이동동선", "이동동선 알려줘"]),
-	new BlockInfo("TRANS_BUS",			"transport_info_list_bus", 			"BUS", 					["버스정보", "버스", "버스정보 알려줘"]),
-	new BlockInfo("TRANS_BUS_EDGE",		"transport_info_list_bus_edge", 	"EDGE", 				["간선버스", "간선", "간선버스 알려줘"]),
-	new BlockInfo("TRANS_BUS_LOOP",		"transport_info_list_bus_loop", 	"LOOP", 				["순환버스", "순환", "순환버스 알려줘"]),
-	new BlockInfo("TRANS_BUS_BRANCH",	"transport_info_list_bus_branch", 	"BRANCH", 				["지선버스", "지선", "지선버스 알려줘"]),
-	new BlockInfo("TRANS_BUS_DETAIL",	"transport_info_list_detail", 		"BUS_DETAIL", 			["버스상세"]),
-	new BlockInfo("QNA_MAIN",			"qna", 								"QNA_MAIN", 			["자주 묻는 질문", "질문"]),
+	new BlockInfo('MAIN',				'main', 							'MAIN', 				['처음으로', '시작', '처음']),
+	new BlockInfo('TOUR_MAIN',			'tourist_spots', 					'TOUR_MAIN', 			['관광지 안내', '관광', '관광지', '관광지 안내 해줘']),
+	new BlockInfo('TOUR_CULTURE',		'tourist_spots_list_culture', 		'CULTURAL_TEMPLE', 		['문화유적/사찰', '문화유적', '사찰']),
+	new BlockInfo('TOUR_NATURE',		'tourist_spots_list_nature', 		'NATURE_WALK', 			['산책명소/자연경관', '산책명소', '자연경관']),
+	new BlockInfo('TOUR_FESTIVAL',		'tourist_spots_list_festival', 		'FESTIVAL_ACTIVITY', 	['축제/체험/볼거리', '축제', '체험', '볼거리']),
+	new BlockInfo('PROGRAMS',			'tour_programs_list', 				'PROGRAMS', 			['투어 프로그램', '투어 프로그램 알려줘', '투어']),
+	new BlockInfo('TRANSPORT',			'transport_info', 					'TRANSPORT', 			['교통편의정보', '교통 및 편의 정보 알려줘', '편의정보', '교통정보']),
+	new BlockInfo('TRANS_PARKING',		'transport_info_list_parking', 		'PARKING', 				['주차장 정보', '주차장', '주차장 알려줘']),
+	new BlockInfo('TRANS_CENTER',		'transport_info_list_center', 		'INFORMATION', 			['관광안내소 정보', '관광안내소', '관광안내소 알려줘']),
+	new BlockInfo('TRANS_ROUTE',		'transport_info_list_route', 		'ROUTE', 				['이동동선', '이동동선 알려줘']),
+	new BlockInfo('TRANS_BUS',			'transport_info_list_bus', 			'BUS', 					['버스정보', '버스', '버스정보 알려줘']),
+	new BlockInfo('TRANS_BUS_EDGE',		'transport_info_list_bus_edge', 	'EDGE', 				['간선버스', '간선', '간선버스 알려줘']),
+	new BlockInfo('TRANS_BUS_LOOP',		'transport_info_list_bus_loop', 	'LOOP', 				['순환버스', '순환', '순환버스 알려줘']),
+	new BlockInfo('TRANS_BUS_BRANCH',	'transport_info_list_bus_branch', 	'BRANCH', 				['지선버스', '지선', '지선버스 알려줘']),
+	new BlockInfo('TRANS_BUS_DETAIL',	'transport_info_list_detail', 		'BUS_DETAIL', 			['버스상세']),
+	new BlockInfo('QNA_MAIN',			'qna', 								'QNA_MAIN', 			['자주 묻는 질문', '질문']),
 ];
 
 function getBlockByName(blockName) {
@@ -71,7 +71,7 @@ function FirstUtterance(menuName) {
 	
 	if (!info || !Array.isArray(info.utterances) || info.utterances.length === 0) {
 		console.warn('[safeFirstUtterance] fallback used for', menuName);
-		return "";
+		return '';
 	}
 	return String(info.utterances[0]);
 }
@@ -305,8 +305,8 @@ function getParam(params, name, defaultValue) {
 
 	if (raw == null) return defaultValue;
 
-	if (typeof raw === 'string') return raw;           	// "CULTURAL_TEMPLE"
-	if (typeof raw === 'object' && 'value' in raw) {	// { value: "CULTURAL_TEMPLE" }
+	if (typeof raw === 'string') return raw;           	// 'CULTURAL_TEMPLE'
+	if (typeof raw === 'object' && 'value' in raw) {	// { value: 'CULTURAL_TEMPLE' }
 		return raw.value;                           	
 	}
 
@@ -353,7 +353,7 @@ function buildMainMenuResponse(regionCode) {
 										{
 											label: '관광지 보러가기',
 											action: 'message',
-											messageText: FirstUtterance("TOUR_MAIN"),
+											messageText: FirstUtterance('TOUR_MAIN'),
 										},
 									],
 								},
@@ -368,7 +368,7 @@ function buildMainMenuResponse(regionCode) {
 										{
 											label: '투어 프로그램 보러가기',
 											action: 'message',
-											messageText: FirstUtterance("PROGRAMS"),
+											messageText: FirstUtterance('PROGRAMS'),
 										},
 									],
 								},
@@ -383,7 +383,7 @@ function buildMainMenuResponse(regionCode) {
 										{
 											label: '교통·편의정보 보러가기',
 											action: 'message',
-											messageText: FirstUtterance("TRANSPORT"),
+											messageText: FirstUtterance('TRANSPORT'),
 										},
 									],
 								},
@@ -398,7 +398,7 @@ function buildMainMenuResponse(regionCode) {
 										{
 											label: '자주 묻는 질문 보러가기',
 											action: 'message',
-											messageText: FirstUtterance("QNA_MAIN"),
+											messageText: FirstUtterance('QNA_MAIN'),
 										},
 									],
 								},
@@ -410,7 +410,7 @@ function buildMainMenuResponse(regionCode) {
 					{
 						label: '처음으로',
 						action: 'message',
-						messageText: FirstUtterance("MAIN"),
+						messageText: FirstUtterance('MAIN'),
 					},
 				],
 			},
@@ -440,17 +440,17 @@ function buildTouristSpotsResponse(regionCode) {
 								{
 									label: '문화유적/사찰',
 									action: 'message',
-									messageText: FirstUtterance("TOUR_CULTURE"),
+									messageText: FirstUtterance('TOUR_CULTURE'),
 								},
 								{
 									label: '자연경관/산책명소',
 									action: 'message',
-									messageText: FirstUtterance("TOUR_NATURE"),
+									messageText: FirstUtterance('TOUR_NATURE'),
 								},
 								{
 									label: '축제·체험·볼거리',
 									action: 'message',
-									messageText: FirstUtterance("TOUR_FESTIVAL"),
+									messageText: FirstUtterance('TOUR_FESTIVAL'),
 								},
 							],
 						},
@@ -460,7 +460,7 @@ function buildTouristSpotsResponse(regionCode) {
 					{
 						label: '처음으로',
 						action: 'message',
-						messageText: FirstUtterance("MAIN"),
+						messageText: FirstUtterance('MAIN'),
 					},
 				],
 			},
@@ -548,12 +548,12 @@ function buildTouristSpotCarouselResponse(spots) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: FirstUtterance("MAIN"),
+					messageText: FirstUtterance('MAIN'),
 				},
 				{
 					label: '다른 유형 보기',
 					action: 'message',
-					messageText: FirstUtterance("TOUR_MAIN"),
+					messageText: FirstUtterance('TOUR_MAIN'),
 				},        
 			],
 		},
@@ -659,7 +659,7 @@ function buildTourCourseListResponse(regionCode, courses) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: FirstUtterance("MAIN"),
+					messageText: FirstUtterance('MAIN'),
 				},
 			],
 		},
@@ -676,12 +676,7 @@ function buildTrafficInfoResponse(regionCode) {
 	//if (regionCode == 'gyeongsan') {
 		
 		const text = '이동이 편한 경산 여행! 어디든 도와드릴게요 🚆🚌\n필요한 정보를 선택해 주세요 👇';
-		console.log('처음으로',	FirstUtterance("MAIN"));
-		console.log('주차장',	FirstUtterance("TRANS_PARKING"));
-		console.log('버스',		FirstUtterance("TRANS_BUS"));
-		console.log('관광안내소',	FirstUtterance("TRANS_CENTER"));
-		console.log('이동동선',	FirstUtterance("TRANS_ROUTE"));
-
+		
 		return {
 			version: '2.0',
 			template: {
@@ -694,27 +689,27 @@ function buildTrafficInfoResponse(regionCode) {
 					{
 						label: '처음으로',
 						action: 'message',
-						messageText: FirstUtterance("MAIN"),
+						messageText: FirstUtterance('MAIN'),
 					},
 					{
 						label: '주차장',
 						action: 'message',
-						messageText: FirstUtterance("TRANS_PARKING"),
+						messageText: FirstUtterance('TRANS_PARKING'),
 					},
 					{
 						label: '버스',
 						action: 'message',
-						messageText: FirstUtterance("TRANS_BUS"),
+						messageText: FirstUtterance('TRANS_BUS'),
 					},
 					{
 						label: '관광안내소',
 						action: 'message',
-						messageText: FirstUtterance("TRANS_CENTER"),
+						messageText: FirstUtterance('TRANS_CENTER'),
 					},
 					{
 						label: '이동동선',
 						action: 'message',
-						messageText: FirstUtterance("TRANS_ROUTE"),
+						messageText: FirstUtterance('TRANS_ROUTE'),
 					},
 				],
 			},
@@ -791,12 +786,12 @@ function buildParkingCarouselResponse(spots) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: FirstUtterance("MAIN"),
+					messageText: FirstUtterance('MAIN'),
 				},
 				{
 					label: '다른 유형 보기',
 					action: 'message',
-					messageText: FirstUtterance("TRANSPORT"),
+					messageText: FirstUtterance('TRANSPORT'),
 				},        
 			],
 		},
@@ -827,22 +822,22 @@ function buildBusInfoResponse(regionCode) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: FirstUtterance("MAIN"),
+					messageText: FirstUtterance('MAIN'),
 				},
 				{
 					label: '간선',
 					action: 'message',
-					messageText: FirstUtterance("TRANS_BUS_EDGE"),
+					messageText: FirstUtterance('TRANS_BUS_EDGE'),
 				},
 				{
 					label: '순환선',
 					action: 'message',
-					messageText: FirstUtterance("TRANS_BUS_LOOP"),
+					messageText: FirstUtterance('TRANS_BUS_LOOP'),
 				},
 				{
 					label: '지선',
 					action: 'message',
-					messageText: FirstUtterance("TRANS_BUS_BRANCH"),
+					messageText: FirstUtterance('TRANS_BUS_BRANCH'),
 				},
 			],
 		},
@@ -917,7 +912,7 @@ function buildBusRouteQuickReplies(routeType, routeNumbers) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: FirstUtterance("MAIN"),
+					messageText: FirstUtterance('MAIN'),
 				},
 			],
 		},
@@ -995,22 +990,22 @@ function buildBusRouteDetailResponse(route) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: FirstUtterance("MAIN"),
+					messageText: FirstUtterance('MAIN'),
 				},
 				{
 					label: '간선버스',
 					action: 'message',
-					messageText: FirstUtterance("TRANS_BUS_EDGE"),
+					messageText: FirstUtterance('TRANS_BUS_EDGE'),
 				},
 				{
 					label: '순환버스',
 					action: 'message',
-					messageText: FirstUtterance("TRANS_BUS_LOOP"),
+					messageText: FirstUtterance('TRANS_BUS_LOOP'),
 				},
 				{
 					label: '지선버스',
 					action: 'message',
-					messageText: FirstUtterance("TRANS_BUS_BRANCH"),
+					messageText: FirstUtterance('TRANS_BUS_BRANCH'),
 				},
 			],
 		},
