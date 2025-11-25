@@ -150,7 +150,7 @@ app.post('/kakao/webhook', async (req, res) => {
 			}			
 			//    └ 버스
 			case 'TRANS_BUS': {
-				kakaoResponse = buildBusMenuResponse(regionCode);
+				kakaoResponse = buildBusRouteMenuResponse(regionCode);
 				break;
 			}
 			//       └ 버스-간선
@@ -185,6 +185,8 @@ app.post('/kakao/webhook', async (req, res) => {
 			}
 			//    └ 이동경로
 			case 'TRANS_ROUTE': {
+				const routes = await getTravelRoutes(regionCode);
+				kakaoResponse = buildTravelRouteListResponse(routes);
 				break;
 			}
 			
@@ -279,12 +281,22 @@ app.get('/openmap', (req, res) => {
 
 
 
+/* ===============================
+ * Render환경용 포트 설정
+ * =============================== */
+ 
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+	console.log(`Server listening on port ${PORT}`);
+});
+
 
 
 /* ===============================
  * 기본 함수들
  * =============================== */
- 
+
+// Webhook json - 기본형
 function buildSimpleTextResponse(text) {
 	return {
 		version: '2.0',
@@ -292,6 +304,7 @@ function buildSimpleTextResponse(text) {
 	};
 }
 
+// Utility - Kakao Request 파라미터
 function getParam(params, name, defaultValue) {
 	const raw = params?.[name];
 
@@ -305,6 +318,7 @@ function getParam(params, name, defaultValue) {
 	return defaultValue;
 }
 
+// Utility - 네이버지도 URL 변환
 function buildNaverMapLauncherUrl(name, lat, lng) {
 	const nName = name || '';
 	const nLat = lat || '';
@@ -320,6 +334,7 @@ function buildNaverMapLauncherUrl(name, lat, lng) {
 	return `${base}?${params}`;
 }
 
+// Utility - 줄바꿈처리 함수
 const normalizeText = (text) => text.replace(/\\n/g, "\n");
 
 
@@ -328,6 +343,7 @@ const normalizeText = (text) => text.replace(/\\n/g, "\n");
  * 메인 메뉴
  * =============================== */
  
+ // Menu - 메인메뉴
 function buildMainMenuResponse(regionCode) {
 	//if (regionCode === 'gyeongsan') {
 		return {
@@ -419,7 +435,8 @@ function buildMainMenuResponse(regionCode) {
 /* ===============================
  * 관광지 목록
  * =============================== */
- 
+
+// Menu - 관광지목록
 function buildTouristSpotsMenuResponse(regionCode) {
 	//if (regionCode === 'gyeongsan') {
 		const text = '경산의 명소들을 소개해드릴게요!\n원하시는 관광지 유형을 선택해 주세요 👇';
@@ -463,6 +480,7 @@ function buildTouristSpotsMenuResponse(regionCode) {
 	//}
 }
 
+// DB - 카테고리별 관광지 목록
 async function getTouristSpots(regionCode, categoryCode) {
 	const query = 
 		`
@@ -481,6 +499,7 @@ async function getTouristSpots(regionCode, categoryCode) {
 	return result.rows;
 }
 
+// Webhook json - 관광지 목록
 function buildTouristSpotCarouselResponse(spots) {
 	if (!spots || spots.length === 0) {
 		return buildSimpleTextResponse('해당 카테고리의 관광지 정보를 찾지 못했어요 😢\n다른 유형을 선택해 주세요.');
@@ -556,11 +575,12 @@ function buildTouristSpotCarouselResponse(spots) {
 
 
 /* ===============================
- * 시티투어 / 상설투어 프로그램
+ * 투어 프로그램
  * =============================== */
  
 const TOUR_MAIN_IMAGE_URL = `${defURL}/images/program_main.png`;
 
+// DB - 투어 프로그램 목록
 async function getTourCourses(regionCode) {
 	const text = `
 		SELECT id, region_code, course_name, course_type, course_detail, course_image_url, sort_order
@@ -575,7 +595,8 @@ async function getTourCourses(regionCode) {
 	
 	return result.rows; 
 }
-  
+
+// Webhook json - 투어 프로그램 기본정보 
 function buildCityTourResponse(regionCode) {
 	const title = '경산 시티투어 안내';
 	const description =
@@ -605,6 +626,7 @@ function buildCityTourResponse(regionCode) {
 	};
 }
 
+// Webhook json - 투어 프로그램 목록
 function buildTourCourseCarouseResponse(regionCode, courses) {
 	if (!courses || courses.length === 0) {
 		return buildSimpleTextResponse(
@@ -660,6 +682,7 @@ function buildTourCourseCarouseResponse(regionCode, courses) {
  * 교통 및 편의정보 목록
  * =============================== */
  
+// Menu - 교통편의정보
 function buildTransportInfoMenuResponse(regionCode) {
 	//if (regionCode === 'gyeongsan') {
 		return {
@@ -668,7 +691,7 @@ function buildTransportInfoMenuResponse(regionCode) {
 				outputs: [
 					{
 						simpleText: {
-							text: `이동이 편한 경산 여행! 어디든 도와드릴게요 🚆🚌\n필요한 정보를 선택해 주세요 👇`,
+							text: `이동이 편한 경산 여행!\n어디든 도와드릴게요 🚆🚌\n필요한 정보를 선택해 주세요 👇`,
 						},
 					},
 				],
@@ -704,6 +727,7 @@ function buildTransportInfoMenuResponse(regionCode) {
 	//}
 }
 
+// Webhook json - 주차장 목록
 function buildParkingCarouselResponse(spots) {
 	if (!spots || spots.length === 0) {
 		return buildSimpleTextResponse('해당 카테고리의 정보를 찾지 못했어요 😢\n다른 유형을 선택해 주세요.');
@@ -785,16 +809,8 @@ function buildParkingCarouselResponse(spots) {
 	};
 }
 
-function getBusRouteTypeLabel(routeType) {
-	switch (routeType) {
-		case 'EDGE': 	return '간선버스';
-		case 'LOOP': 	return '순환버스';
-		case 'BRANCH':	return '지선버스';
-		default:		return '버스';
-	}
-}
-
-function buildBusMenuResponse(regionCode) {
+// Menu - 버스노선
+function buildBusRouteMenuResponse(regionCode) {
 	const text = '경산 시내버스 정보를 안내해 드릴게요 🚌\n원하시는 노선 유형을 선택해 주세요 👇';
 	
 	return {
@@ -831,6 +847,17 @@ function buildBusMenuResponse(regionCode) {
 	};
 }
 
+// Enum to Label - 버스노선 타입별 명칭
+function getBusRouteTypeLabel(routeType) {
+	switch (routeType) {
+		case 'EDGE': 	return '간선버스';
+		case 'LOOP': 	return '순환버스';
+		case 'BRANCH':	return '지선버스';
+		default:		return '버스';
+	}
+}
+
+// DB - 타입별 버스노선 목록
 async function getBusRouteNumbersByType(regionCode, routeType) {
 	const text = `
 		SELECT DISTINCT route_number
@@ -847,24 +874,7 @@ async function getBusRouteNumbersByType(regionCode, routeType) {
 	return result.rows.map(r => r.route_number);
 }
 
-async function getBusRouteDetail(regionCode, routeNumber) {
-	const text = `
-		SELECT id, region_code, route_number, route_type, origin_name, destination_name,
-			   interval_info, first_bus_time, last_bus_time, weekday_timetable_url, holiday_timetable_url,
-			   route_map_url, sort_order
-			FROM bus_routes
-			WHERE region_code = $1
-			  AND route_number = $2
-			  AND is_active = TRUE
-			LIMIT 1;
-		`;
-		
-	const values = [regionCode, routeNumber];
-	const result = await pool.query({ text, values });
-	
-	return result.rows[0] || null;
-}
-
+// Webhook json - 타입별 버스노선 바로연결 버튼 목록
 function buildBusRouteQuickReplies(routeType, routeNumbers) {
 	const typeLabel = getBusRouteTypeLabel(routeType);
 
@@ -900,6 +910,26 @@ function buildBusRouteQuickReplies(routeType, routeNumbers) {
 	};
 }
 
+// DB - 버스번호 기준 버스상세정보
+async function getBusRouteDetail(regionCode, routeNumber) {
+	const text = `
+		SELECT id, region_code, route_number, route_type, origin_name, destination_name,
+			   interval_info, first_bus_time, last_bus_time, weekday_timetable_url, holiday_timetable_url,
+			   route_map_url, sort_order
+			FROM bus_routes
+			WHERE region_code = $1
+			  AND route_number = $2
+			  AND is_active = TRUE
+			LIMIT 1;
+		`;
+		
+	const values = [regionCode, routeNumber];
+	const result = await pool.query({ text, values });
+	
+	return result.rows[0] || null;
+}
+
+// Webhook json - 버스번호 기준 버스상세정보
 function buildBusRouteDetailResponse(route) {
 	if (!route) {
 		return buildSimpleTextResponse('해당 버스 노선 정보를 찾지 못했어요 😢\n번호를 다시 한 번 확인해 주세요.');
@@ -990,6 +1020,110 @@ function buildBusRouteDetailResponse(route) {
 	};
 }
 
+// Enum to Label - 이동동선 타입별 명칭
+function getTravelRouteTypeLabel(routeType) {
+	switch (routeType) {
+		case 'THEME': 	return '테마형 이동 동선';
+		case 'HUB':		return '출발지(허브) 기준 동선';
+		case 'COURSE':	return '반나절/1일 코스';
+		default:		return '이동 동선';
+	}
+}
+
+// DB - 이동동선
+async function getTravelRoutes(regionCode, routeType = null) {
+	console.log('▶ getTravelRoutes()', regionCode, routeType);
+
+	let text = `
+		SELECT id, region_code, route_type,	title, description, items,
+			   total_time, transport_type, map_url, sort_order
+			FROM travel_routes
+			WHERE region_code = $1
+			  AND is_active = TRUE
+	`;
+	
+	const values = [regionCode];
+
+	if (routeType) {
+		text += ` AND route_type = $2`;
+		values.push(routeType);
+	}
+	text += ` ORDER BY sort_order NULLS LAST, id;`;
+
+	const result = await pool.query({ text, values });
+	console.log('travel_routes rowCount =', result.rowCount);
+
+	return result.rows;
+}
+
+// Webhook json - 이동동선
+function buildTravelRouteListResponse(routes, routeType) {
+	const typeLabel = getTravelRouteTypeLabel(routeType);
+
+	if (!routes || routes.length === 0) {
+		return buildSimpleTextResponse(`${typeLabel} 정보를 찾지 못했어요 😢\n다른 유형을 선택해 주세요.`);
+	}
+
+	const items = routes.slice(0, 10).map((r) => {
+		const lines = [];
+
+		if (r.description)	lines.push(r.description);
+	
+		if (Array.isArray(r.items) && r.items.length > 0) {
+			const routeStr = r.items.join(' → ');
+			lines.push(`🗺 경로: ${routeStr}`);
+		}
+
+		if (r.total_time) 		lines.push(`🕒 소요시간: ${r.total_time}`);
+		if (r.transport_type) 	lines.push(`🚍 이동수단: ${r.transport_type}`);
+		const description = lines.join('\n');
+
+		const buttons = [];
+
+		if (r.map_url) {
+			buttons.push({
+				label: '네이버지도 열기',
+				action: 'webLink',
+				webLinkUrl: r.map_url,
+			});
+		}
+
+		return {
+			title: r.title,
+			description,
+			buttons,
+		};
+	});
+
+	return {
+		version: '2.0',
+		template: {
+			outputs: [
+				{
+					carousel: {
+						type: 'basicCard',
+						items,
+					},
+				},
+			],
+			quickReplies: [
+				{
+					label: '처음으로',
+					action: 'message',
+					messageText: '처음으로',
+				},
+			],
+		},
+	};
+}
+
+
+
+
+
+
+
+
 
 
 
@@ -1069,11 +1203,3 @@ function buildFaqListResponse(faqs) {
 
 
 
-/* ===============================
- * Render환경용 포트 설정
- * =============================== */
- 
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
-});
