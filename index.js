@@ -48,6 +48,9 @@ const BlockList = [
 	new BlockInfo('TRANS_PARKING',		'transport_info_list_parking', 		'PARKING', 				['주차장 정보', '주차장', '주차장 알려줘']),
 	new BlockInfo('TRANS_CENTER',		'transport_info_list_center', 		'INFORMATION', 			['관광안내소 정보', '관광안내소', '관광안내소 알려줘']),
 	new BlockInfo('TRANS_ROUTE',		'transport_info_list_route', 		'ROUTE', 				['이동동선', '이동동선 알려줘']),
+	new BlockInfo('TRANS_ROUTE_THEME',	'transport_info_list_route_theme', 	'THEME', 				['테마형 이동동선', '테마형']),
+	new BlockInfo('TRANS_ROUTE_HUB',	'transport_info_list_route_hub', 	'HUB', 					['출발지기준 동선', '출발지기준']),
+	new BlockInfo('TRANS_ROUTE_COURSE',	'transport_info_list_route_course', 'COURSE', 				['코스형 이동동선', '코스형']),
 	new BlockInfo('TRANS_BUS',			'transport_info_list_bus', 			'BUS', 					['버스정보', '버스', '버스정보 알려줘']),
 	new BlockInfo('TRANS_BUS_EDGE',		'transport_info_list_bus_edge', 	'EDGE', 				['간선버스', '간선', '간선버스 알려줘']),
 	new BlockInfo('TRANS_BUS_LOOP',		'transport_info_list_bus_loop', 	'LOOP', 				['순환버스', '순환', '순환버스 알려줘']),
@@ -185,8 +188,25 @@ app.post('/kakao/webhook', async (req, res) => {
 			}
 			//    └ 이동경로
 			case 'TRANS_ROUTE': {
-				const routes = await getTravelRoutes(regionCode);
-				kakaoResponse = buildTravelRouteListResponse(routes);
+				kakaoResponse = buildTravelRouteMenuResponse(regionCode, routes);
+				break;
+			}
+			//       └ 이동경로 - 테마형
+			case 'TRANS_ROUTE_THEME': {
+				const routes = await getTravelRoutes(regionCode, 'THEME');
+				kakaoResponse = buildTravelRouteListResponse(routes, 'THEME');
+				break;
+			}
+			//       └ 이동경로 - 출발지기준
+			case 'TRANS_ROUTE_THEME': {
+				const routes = await getTravelRoutes(regionCode, 'HUB');
+				kakaoResponse = buildTravelRouteListResponse(routes, 'HUB');
+				break;
+			}
+			//       └ 이동경로 - 코스형
+			case 'TRANS_ROUTE_THEME': {
+				const routes = await getTravelRoutes(regionCode, 'COURSE');
+				kakaoResponse = buildTravelRouteListResponse(routes, 'COURSE');
 				break;
 			}
 			
@@ -811,40 +831,42 @@ function buildParkingCarouselResponse(spots) {
 
 // Menu - 버스노선
 function buildBusRouteMenuResponse(regionCode) {
-	const text = '경산 시내버스 정보를 안내해 드릴게요 🚌\n원하시는 노선 유형을 선택해 주세요 👇';
-	
-	return {
-		version: '2.0',
-		template: {
-			outputs: [
-				{
-					simpleText: { text, },
-				},
-			],
-			quickReplies: [
-				{
-					label: '처음으로',
-					action: 'message',
-					messageText: FirstUtterance('MAIN'),
-				},
-				{
-					label: '간선',
-					action: 'message',
-					messageText: FirstUtterance('TRANS_BUS_EDGE'),
-				},
-				{
-					label: '순환선',
-					action: 'message',
-					messageText: FirstUtterance('TRANS_BUS_LOOP'),
-				},
-				{
-					label: '지선',
-					action: 'message',
-					messageText: FirstUtterance('TRANS_BUS_BRANCH'),
-				},
-			],
-		},
-	};
+	//if (regionCode === 'gyeongsan') {
+		const text = '경산 시내버스 정보를 안내해 드릴게요 🚌\n원하시는 노선 유형을 선택해 주세요 👇';
+		
+		return {
+			version: '2.0',
+			template: {
+				outputs: [
+					{
+						simpleText: { text, },
+					},
+				],
+				quickReplies: [
+					{
+						label: '처음으로',
+						action: 'message',
+						messageText: FirstUtterance('MAIN'),
+					},
+					{
+						label: '간선',
+						action: 'message',
+						messageText: FirstUtterance('TRANS_BUS_EDGE'),
+					},
+					{
+						label: '순환선',
+						action: 'message',
+						messageText: FirstUtterance('TRANS_BUS_LOOP'),
+					},
+					{
+						label: '지선',
+						action: 'message',
+						messageText: FirstUtterance('TRANS_BUS_BRANCH'),
+					},
+				],
+			},
+		};
+	//}
 }
 
 // Enum to Label - 버스노선 타입별 명칭
@@ -1018,6 +1040,46 @@ function buildBusRouteDetailResponse(route) {
 			],
 		},
 	};
+}
+
+// Menu - 버스노선
+function buildTravelRouteMenuResponse(regionCode) {
+	//if (regionCode === 'gyeongsan') {
+		const text = '경산 시내버스 정보를 안내해 드릴게요 🚌\n원하시는 노선 유형을 선택해 주세요 👇';
+		
+		return {
+			version: '2.0',
+			template: {
+				outputs: [
+					{
+						simpleText: { text, },
+					},
+				],
+				quickReplies: [
+					{
+						label: '처음으로',
+						action: 'message',
+						messageText: FirstUtterance('MAIN'),
+					},
+					{
+						label: '테마형',
+						action: 'message',
+						messageText: FirstUtterance('TRANS_ROUTE_THEME'),
+					},
+					{
+						label: '출발지기준',
+						action: 'message',
+						messageText: FirstUtterance('TRANS_ROUTE_HUB'),
+					},
+					{
+						label: '코스형',
+						action: 'message',
+						messageText: FirstUtterance('TRANS_ROUTE_COURSE'),
+					},
+				],
+			},
+		};
+	//}
 }
 
 // Enum to Label - 이동동선 타입별 명칭
