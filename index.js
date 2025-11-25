@@ -46,19 +46,19 @@ app.post('/kakao/webhook', async (req, res) => {
 		switch (intentName) {
 			case 'tourist_spots_list_culture': {
 				const categoryCode = 'CULTURAL_TEMPLE';
-				const spots = await getTouristSpots(regionCode, categoryCode, 10);
+				const spots = await getTouristSpots(regionCode, categoryCode);
 				kakaoResponse = buildTouristSpotCarouselResponse(spots, categoryCode);
 				break;
 			}
 			case 'tourist_spots_list_nature': {
 				const categoryCode = 'NATURE_WALK';
-				const spots = await getTouristSpots(regionCode, categoryCode, 10);
+				const spots = await getTouristSpots(regionCode, categoryCode);
 				kakaoResponse = buildTouristSpotCarouselResponse(spots, categoryCode);
 				break;
 			}
 			case 'tourist_spots_list_festival': {
 				const categoryCode = 'FESTIVAL_ACTIVITY';
-				const spots = await getTouristSpots(regionCode, categoryCode, 10);
+				const spots = await getTouristSpots(regionCode, categoryCode);
 				kakaoResponse = buildTouristSpotCarouselResponse(spots, categoryCode);
 				break;
 			}
@@ -71,13 +71,13 @@ app.post('/kakao/webhook', async (req, res) => {
 					
 			case 'transport_info_list_parking': {
 				const categoryCode = 'PARKING';
-				const spots = await getTouristSpots(regionCode, categoryCode, 20);
+				const spots = await getTouristSpots(regionCode, categoryCode);
 				kakaoResponse = buildTouristSpotCarouselResponse(spots, categoryCode);
 				break;
 			}
 			case 'transport_info_list_center': {
 				const categoryCode = 'INFORMATION';
-				const spots = await getTouristSpots(regionCode, categoryCode, 10);
+				const spots = await getTouristSpots(regionCode, categoryCode);
 				kakaoResponse = buildTouristSpotCarouselResponse(spots, categoryCode);
 				break;
 			}					
@@ -247,7 +247,7 @@ const normalizeText = (text) => text.replace(/\\n/g, "\n");
  * 관광지 목록
  * =============================== */
 
-async function getTouristSpots(regionCode, categoryCode, recordLimit) {
+async function getTouristSpots(regionCode, categoryCode) {
 	console.log('[관광지목록] region:', regionCode, 'category:', categoryCode);
 	const query = 
 		`
@@ -257,7 +257,7 @@ async function getTouristSpots(regionCode, categoryCode, recordLimit) {
 			  AND category_code = $2
 			  AND is_active = TRUE
 			ORDER BY sort_order NULLS LAST, name_ko
-			LIMIT $3;
+			LIMIT 20;
 		`;
 
 	const values = [regionCode, categoryCode];
