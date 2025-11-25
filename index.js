@@ -980,9 +980,6 @@ function buildBusRouteDetailResponse(route) {
 					basicCard: {
 						title: `${route.route_number}번`,
 						description,
-						thumbnail: {
-							imageUrl: `${defURL}/images/kyeongsan_m_3_traffic.png`,
-						},
 						buttons,
 					},
 				},
