@@ -4,7 +4,7 @@ const path = require('path');
 const { Pool } = require('pg');
 
 const defURL = 'https://yktout-chatbot-web.onrender.com';
-const defImg = defURL + '/images/kyeongsan_m_1_info.png';
+const defImg = '${defURL}/images/kyeongsan_m_1_info.png';
 
 const app = express();
 
@@ -129,7 +129,7 @@ app.post('/kakao/webhook', async (req, res) => {
 			}
 			//       └ 버스 상세 정보
 			case 'transport_info_list_bus_detail': {
-				let routeNumber = getParam(params, 'route_number', null);
+				/*let routeNumber = getParam(params, 'route_number', null);
 				if (!routeNumber && body.userRequest && body.userRequest.utterance) {
 					routeNumber = body.userRequest.utterance.trim();
 				}
@@ -142,7 +142,7 @@ app.post('/kakao/webhook', async (req, res) => {
 				}
 
 				const route = await getBusRouteDetail(regionCode, routeNumber);
-				kakaoResponse = buildBusRouteDetailResponse(route);
+				kakaoResponse = buildBusRouteDetailResponse(route);*/
 				break;
 			}
 			//    └ 이동경로
@@ -284,7 +284,7 @@ function buildNaverMapLauncherUrl(name, lat, lng) {
 	const nLat = lat || '';
 	const nLng = lng || '';
 
-	const base = defURL + '/openmap';
+	const base = '${defURL}/openmap';
 
 	const params =
 		'name=' + encodeURIComponent(nName) +
@@ -313,7 +313,7 @@ function buildMainMenuResponse(regionCode) {
 									title: '관광지 안내',
 									description: '문화유적·자연명소·축제 정보를 한눈에!',
 									thumbnail: {
-										imageUrl: 'https://yktout-chatbot-web.onrender.com/images/kyeongsan_m_1_info.png',
+										imageUrl: '${defURL}/images/kyeongsan_m_1_info.png',
 									},
 									buttons: [
 										{
@@ -328,7 +328,7 @@ function buildMainMenuResponse(regionCode) {
 									title: '투어 프로그램 안내',
 									description: '테마별 여행 코스를 편하게 즐겨보세요!',
 									thumbnail: {
-										imageUrl: 'https://yktout-chatbot-web.onrender.com/images/kyeongsan_m_2_info.png',
+										imageUrl: '${defURL}/images/kyeongsan_m_2_info.png',
 									},
 									buttons: [
 										{
@@ -343,7 +343,7 @@ function buildMainMenuResponse(regionCode) {
 									title: '교통·편의 정보',
 									description: '주차장·버스·안내소 위치를 쉽게 찾아보세요.',
 									thumbnail: {
-										imageUrl: 'https://yktout-chatbot-web.onrender.com/images/kyeongsan_m_3_info.png',
+										imageUrl: '${defURL}/images/kyeongsan_m_3_info.png',
 									},
 									buttons: [
 										{
@@ -358,7 +358,7 @@ function buildMainMenuResponse(regionCode) {
 									title: '자주 묻는 질문',
 									description: '여행 중 자주 물어보는 정보를 모았어요.',
 									thumbnail: {
-										imageUrl: 'https://yktout-chatbot-web.onrender.com/images/kyeongsan_m_4_info.png',
+										imageUrl: '${defURL}/images/kyeongsan_m_4_info.png',
 									},
 									buttons: [
 										{
@@ -532,7 +532,7 @@ function buildTouristSpotCarouselResponse(spots) {
  * 시티투어 / 상설투어 프로그램
  * =============================== */
  
-const TOUR_MAIN_IMAGE_URL = defURL + '/images/program_main.png';
+const TOUR_MAIN_IMAGE_URL = '${defURL}/images/program_main.png';
 
 async function getTourCourses(regionCode) {
 	console.log('Tour Course Region Code:', regionCode);
@@ -909,7 +909,7 @@ function buildBusRouteDetailResponse(route) {
 						title: `${route.route_number}번`,
 						description,
 						thumbnail: {
-							imageUrl: 'https://yktout-chatbot-web.onrender.com/images/bus_default.png',
+							imageUrl: '${defURL}/images/bus_default.png',
 						},
 						buttons,
 					},
