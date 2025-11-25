@@ -104,7 +104,7 @@ app.post('/kakao/webhook', async (req, res) => {
 
 			// ※ 관광지 안내
 			case 'TOUR_MAIN': {
-				kakaoResponse = buildTouristSpotsResponse(regionCode);
+				kakaoResponse = buildTouristSpotsMenuResponse(regionCode);
 				break;
 			}
 			//    └ 문화유적/사찰
@@ -129,13 +129,13 @@ app.post('/kakao/webhook', async (req, res) => {
 			// ※ 시티투어 상설투어 프로그램
 			case 'PROGRAMS': {
 				const courses = await getTourCourses(regionCode);
-				kakaoResponse = buildTourCourseListResponse(regionCode, courses);
+				kakaoResponse = buildTourCourseCarouseResponse(regionCode, courses);
 				break;
 			}
 			
 			// ※ 교통 및 편의정보
 			case 'TRANSPORT': {
-				kakaoResponse = buildTrafficInfoResponse(regionCode);
+				kakaoResponse = buildTransportInfoMenuResponse(regionCode);
 				break;
 			}
 			//    └ 주차장
@@ -152,7 +152,7 @@ app.post('/kakao/webhook', async (req, res) => {
 			}			
 			//    └ 버스
 			case 'TRANS_BUS': {
-				kakaoResponse = buildBusInfoResponse(regionCode);
+				kakaoResponse = buildBusMenuResponse(regionCode);
 				break;
 			}
 			//       └ 버스-간선
@@ -423,7 +423,7 @@ function buildMainMenuResponse(regionCode) {
  * 관광지 목록
  * =============================== */
  
-function buildTouristSpotsResponse(regionCode) {
+function buildTouristSpotsMenuResponse(regionCode) {
 	//if (regionCode === 'gyeongsan') {
 		const text = '경산의 명소들을 소개해드릴게요!\n원하시는 관광지 유형을 선택해 주세요 👇';
 
@@ -615,7 +615,7 @@ function buildCityTourResponse(regionCode) {
 	};
 }
 
-function buildTourCourseListResponse(regionCode, courses) {
+function buildTourCourseCarouseResponse(regionCode, courses) {
 	if (!courses || courses.length === 0) {
 		return buildSimpleTextResponse(
 			'현재 운영 중인 경산 시티투어 코스를 찾지 못했어요 😢\n' +
@@ -670,7 +670,7 @@ function buildTourCourseListResponse(regionCode, courses) {
  * 교통 및 편의정보 목록
  * =============================== */
  
-function buildTrafficInfoResponse(regionCode) {
+function buildTransportInfoMenuResponse(regionCode) {
 	//if (regionCode === 'gyeongsan') {
 		const text = '이동이 편한 경산 여행! 어디든 도와드릴게요 🚆🚌\n필요한 정보를 선택해 주세요 👇';
 		
@@ -690,7 +690,7 @@ function buildTrafficInfoResponse(regionCode) {
 						action: 'message',
 						messageText: FirstUtterance('MAIN'),
 					},
-					{
+					/*{
 						label: '주차장',
 						action: 'message',
 						messageText: FirstUtterance('TRANS_PARKING'),
@@ -709,7 +709,7 @@ function buildTrafficInfoResponse(regionCode) {
 						label: '이동동선',
 						action: 'message',
 						messageText: FirstUtterance('TRANS_ROUTE'),
-					},
+					},*/
 				],
 			},
 		};
@@ -806,7 +806,7 @@ function getBusRouteTypeLabel(routeType) {
 	}
 }
 
-function buildBusInfoResponse(regionCode) {
+function buildBusMenuResponse(regionCode) {
 	const text = '경산 시내버스 정보를 안내해 드릴게요 🚌\n원하시는 노선 유형을 선택해 주세요 👇';
 	
 	return {
