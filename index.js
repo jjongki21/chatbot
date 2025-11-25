@@ -673,7 +673,7 @@ function buildTourCourseCarouseResponse(regionCode, courses) {
 function buildTransportInfoMenuResponse(regionCode) {
 	//if (regionCode === 'gyeongsan') {
 		const text = '이동이 편한 경산 여행! 어디든 도와드릴게요 🚆🚌\n필요한 정보를 선택해 주세요 👇';
-		
+
 		return {
 			version: '2.0',
 			template: {
