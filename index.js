@@ -1176,6 +1176,21 @@ function buildTravelRouteListResponse(routes, routeType) {
 					action: 'message',
 					messageText: '처음으로',
 				},
+				{
+					label: '테마형',
+					action: 'message',
+					messageText: FirstUtterance('TRANS_ROUTE_THEME'),
+				},
+				{
+					label: '출발지기준',
+					action: 'message',
+					messageText: FirstUtterance('TRANS_ROUTE_HUB'),
+				},
+				{
+					label: '코스형',
+					action: 'message',
+					messageText: FirstUtterance('TRANS_ROUTE_COURSE'),
+				},
 			],
 		},
 	};
