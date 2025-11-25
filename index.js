@@ -71,7 +71,7 @@ function FirstUtterance(menuName) {
 	
 	if (!info || !Array.isArray(info.utterances) || info.utterances.length === 0) {
 		console.warn('[safeFirstUtterance] fallback used for', menuName);
-		return '';
+		return "";
 	}
 	return String(info.utterances[0]);
 }
