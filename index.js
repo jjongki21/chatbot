@@ -54,7 +54,7 @@ const BlockList = [
 	new BlockInfo('TRANS_BUS_EDGE',		'transport_info_list_bus_edge', 	'EDGE', 				['간선버스', '간선', '간선버스 알려줘']),
 	new BlockInfo('TRANS_BUS_LOOP',		'transport_info_list_bus_loop', 	'LOOP', 				['순환버스', '순환', '순환버스 알려줘']),
 	new BlockInfo('TRANS_BUS_BRANCH',	'transport_info_list_bus_branch', 	'BRANCH', 				['지선버스', '지선', '지선버스 알려줘']),
-	new BlockInfo('TRANS_BUS_DETAIL',	'transport_info_list_detail', 		'BUS_DETAIL', 			['버스상세']),
+	new BlockInfo('TRANS_BUS_DETAIL',	'transport_info_list_detail', 		'BUS_DETAIL', 			['^(?:\d+(?:-\d+)?|[가-힣]+[0-9]+(?:-[0-9]+)?)$']),
 	new BlockInfo('QNA_MAIN',			'qna', 								'QNA_MAIN', 			['자주 묻는 질문', '질문']),
 ];
 
@@ -175,20 +175,14 @@ app.post('/kakao/webhook', async (req, res) => {
 			}
 			//       └ 버스 상세 정보
 			case 'TRANS_BUS_DETAIL': {
-				/*let routeNumber = getParam(params, 'route_number', null);
+				let routeNumber = getParam(params, 'route_number', null);
+
 				if (!routeNumber && body.userRequest && body.userRequest.utterance) {
 					routeNumber = body.userRequest.utterance.trim();
 				}
-				console.log('[transport_info_list_bus_detail] region:', regionCode, 'routeNumber:', routeNumber);
-
-				if (!routeNumber) {
-					kakaoResponse = buildSimpleTextResponse(
-						'조회할 버스 번호를 찾지 못했어요 😢\n버스 번호를 다시 한 번 눌러 주세요.');
-					break;
-				}
 
 				const route = await getBusRouteDetail(regionCode, routeNumber);
-				kakaoResponse = buildBusRouteDetailResponse(route);*/
+				kakaoResponse = buildBusRouteDetailResponse(route);
 				break;
 			}
 			//    └ 이동경로
@@ -331,6 +325,11 @@ function buildNaverMapLauncherUrl(name, lat, lng) {
 const normalizeText = (text) => text.replace(/\\n/g, "\n");
 
 
+
+/* ===============================
+ * 메인 메뉴
+ * =============================== */
+ 
 function buildMainMenuResponse(regionCode) {
 	//if (regionCode === 'gyeongsan') {
 		return {
@@ -907,12 +906,12 @@ function buildBusRouteQuickReplies(routeType, routeNumbers) {
 				},
 			],
 			quickReplies: [
-				...quickReplies,
 				{
 					label: '처음으로',
 					action: 'message',
 					messageText: FirstUtterance('MAIN'),
 				},
+				...quickReplies,
 			],
 		},
 	};
