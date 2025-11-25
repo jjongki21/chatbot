@@ -188,7 +188,7 @@ app.post('/kakao/webhook', async (req, res) => {
 			}
 			//    └ 이동경로
 			case 'TRANS_ROUTE': {
-				kakaoResponse = buildTravelRouteMenuResponse(regionCode, routes);
+				kakaoResponse = buildTravelRouteMenuResponse(regionCode);
 				break;
 			}
 			//       └ 이동경로 - 테마형
@@ -1042,10 +1042,12 @@ function buildBusRouteDetailResponse(route) {
 	};
 }
 
-// Menu - 버스노선
+// Menu - 이동동선
 function buildTravelRouteMenuResponse(regionCode) {
 	//if (regionCode === 'gyeongsan') {
-		const text = '경산 시내버스 정보를 안내해 드릴게요 🚌\n원하시는 노선 유형을 선택해 주세요 👇';
+		const text = '🧭 경산 여행 어디부터 갈지 고민되시나요?\n아래 이동 동선 유형 중 하나를 선택해 보세요!\n'
+					+ '원하는 스타일에 맞춰 추천 루트를 안내해 드릴게요 😊\n\n'
+					+ '📌 테마형 이동 동선\n🚉 출발지 기준 이동\n🗺 반나절·1일 코스형';
 		
 		return {
 			version: '2.0',
