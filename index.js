@@ -158,19 +158,19 @@ app.post('/kakao/webhook', async (req, res) => {
 			//       └ 버스-간선
 			case 'TRANS_BUS_EDGE': {
 				const routeNumbers = await getBusRouteNumbersByType(regionCode, block.category);
-				kakaoResponse = buildBusRouteQuickReplies(routeCode, routeNumbers);
+				kakaoResponse = buildBusRouteQuickReplies(block.category, routeNumbers);
 				break;
 			}
 			//       └ 버스-순환선
 			case 'TRANS_BUS_LOOP': {
 				const routeNumbers = await getBusRouteNumbersByType(regionCode, block.category);
-				kakaoResponse = buildBusRouteQuickReplies(routeCode, routeNumbers);
+				kakaoResponse = buildBusRouteQuickReplies(block.category, routeNumbers);
 				break;
 			}
 			//       └ 버스-지선
 			case 'TRANS_BUS_BRANCH': {
 				const routeNumbers = await getBusRouteNumbersByType(regionCode, block.category);
-				kakaoResponse = buildBusRouteQuickReplies(routeCode, routeNumbers);
+				kakaoResponse = buildBusRouteQuickReplies(block.category, routeNumbers);
 				break;
 			}
 			//       └ 버스 상세 정보
