@@ -321,12 +321,12 @@ function buildTouristSpotCarouselResponse(spots) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: 'main',
+					messageText: '처음으로',
 				},
 				{
 					label: '다른 유형 보기',
 					action: 'message',
-					messageText: 'tourist_spots',
+					messageText: '관광지 안내',
 				},        
 			],
 		},
@@ -433,7 +433,7 @@ function buildTourCourseListResponse(courses) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: 'main',
+					messageText: '처음으로',
 				},
 			],
 		},
@@ -506,12 +506,12 @@ function buildParkingCarouselResponse(spots) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: 'main',
+					messageText: '처음으로',
 				},
 				{
 					label: '다른 유형 보기',
 					action: 'message',
-					messageText: 'transport_info',
+					messageText: '교통 및 편의 정보 알려줘',
 				},
 			],
 		},
@@ -566,7 +566,7 @@ function buildTransportListResponse(items, categoryCode) {
 		{
           label: '처음으로',
           action: 'message',
-          messageText: 'main',
+          messageText: '처음으로',
         },
         {
           label: '주차장',
