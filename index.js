@@ -6,6 +6,8 @@ const { Pool } = require('pg');
 const defURL = 'https://yktout-chatbot-web.onrender.com';
 const defImg = '${defURL}/images/kyeongsan_m_1_info.png';
 
+console.log(defImg);
+
 const app = express();
 
 app.use(express.json());
@@ -414,7 +416,7 @@ function buildTouristSpotsResponse(regionCode) {
 									messageText: '자연경관 산책명소',
 								},
 								{
-									label: '축제,체험,볼거리',
+									label: '축제·체험·볼거리',
 									action: 'message',
 									messageText: '축제 체험 볼거리',
 								},
