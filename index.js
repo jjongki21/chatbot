@@ -23,8 +23,6 @@ app.get('/', (req, res) => {
   res.send('Kakao Chatbot is running.');
 });
 
-console.log('Kakao Chatbot is Running');
-
 
 /* ===============================
  * 카카오톡 챗봇 웹훅
@@ -148,7 +146,6 @@ app.get('/openmap', (req, res) => {
 			<meta name="viewport" content="width=device-width, initial-scale=1" />
 			
 			<script>
-				// 서버에서 내려준 값들
 				var LAT = ${JSON.stringify(safeLat)};
 				var LNG = ${JSON.stringify(safeLng)};
 				var NAME = ${JSON.stringify(safeName)};
@@ -157,8 +154,6 @@ app.get('/openmap', (req, res) => {
 
 				function openNaverMap() {
 					var encodedName = encodeURIComponent(NAME || "");
-
-					// 네이버 지도 앱 스킴 (iOS/Android 둘 다 사용 가능)
 					var appUrl = "nmap://route/car?dlat=" + LAT + "&dlng=" + LNG + "&dname=" + encodedName;
 
 					// 네이버 지도 웹 (앱 없거나 앱 실행 실패 시)
@@ -166,13 +161,11 @@ app.get('/openmap', (req, res) => {
 
 					var start = Date.now();
 
-					// 1) 앱 열기 시도
 					window.location.href = appUrl;
 
-					// 2) 일정 시간 내에 앱이 안 열리면 웹으로 이동
+					// 일정 시간 내에 앱이 안 열리면 웹으로 이동
 					setTimeout(function() {
 					var elapsed = Date.now() - start;
-					// 인앱 브라우저에 따라 항상 정확하진 않지만, 앱이 없어서 바로 복귀한 경우를 대략적으로 잡는 용도
 						if (elapsed < 1500) {
 							window.location.href = webUrl;
 						}
@@ -328,12 +321,12 @@ function buildTouristSpotCarouselResponse(spots) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: '처음으로',
+					messageText: 'main',
 				},
 				{
 					label: '다른 유형 보기',
 					action: 'message',
-					messageText: '관광지 안내',
+					messageText: 'tourist_spots',
 				},        
 			],
 		},
@@ -440,7 +433,7 @@ function buildTourCourseListResponse(courses) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: '처음으로',
+					messageText: 'main',
 				},
 			],
 		},
@@ -453,6 +446,77 @@ function buildTourCourseListResponse(courses) {
  * 관광지 목록
  * =============================== */
 
+function buildParkingCarouselResponse(spots) {
+	if (!spots || spots.length === 0) {
+		return buildSimpleTextResponse('해당 카테고리의 관광지 정보를 찾지 못했어요 😢\n다른 유형을 선택해 주세요.');
+	}
+
+	// BasicCard 캐러셀 아이템 생성
+	const items = spots.slice(0, 10).map(s => {
+		// 설명 : 요약 + 주소
+		const descLines = [];
+		if (s.summary) descLines.push(s.summary);
+		if (s.address) descLines.push(`📍 ${s.address}`);
+		
+		const description = descLines.join('\n');
+		const naverMapUrl = buildNaverMapLauncherUrl(s.name_ko, s.latitude, s.longitude);
+		const homepageUrl = s.homepage_url || naverMapUrl;
+
+		const buttons = [];
+
+		buttons.push({
+			label: '웹페이지 보기',
+			action: 'webLink',
+			webLinkUrl: homepageUrl,
+		});
+
+		buttons.push({
+			label: '네이버지도 경로',
+			action: 'webLink',
+			webLinkUrl: naverMapUrl,
+		});
+
+		if (s.phone) {
+			buttons.push({
+				label: '전화하기',
+				action: 'phone',
+				phoneNumber: s.phone,
+			});
+		}
+
+		return {
+			title: s.name_ko,
+			description: description || '관광지 정보입니다.',
+			buttons,
+		};
+	});
+
+	return {
+		version: '2.0',
+		template: {
+			outputs: [
+				{
+					carousel: {
+						type: 'basicCard',
+						items,
+					},
+				},
+			],
+			quickReplies: [
+				{
+					label: '처음으로',
+					action: 'message',
+					messageText: 'main',
+				},
+				{
+					label: '다른 유형 보기',
+					action: 'message',
+					messageText: 'transport_info',
+				},
+			],
+		},
+	};
+}
 
 
 
@@ -502,7 +566,7 @@ function buildTransportListResponse(items, categoryCode) {
 		{
           label: '처음으로',
           action: 'message',
-          messageText: '처음으로',
+          messageText: 'main',
         },
         {
           label: '주차장',
