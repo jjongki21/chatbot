@@ -175,9 +175,10 @@ app.post('/kakao/webhook', async (req, res) => {
 			}
 			//       └ 버스 상세 정보
 			case 'TRANS_BUS_DETAIL': {
-				console.log("TRANS_BUS_DETAIL");
+				console.log("TRANS_BUS_DETAIL 1");
 				
 				let routeNumber = getParam(params, 'route_number', null);
+				console.log("TRANS_BUS_DETAIL 2 ", routeNumber);
 
 				if (!routeNumber && body.userRequest && body.userRequest.utterance) {
 					routeNumber = body.userRequest.utterance.trim();
