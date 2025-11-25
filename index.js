@@ -247,7 +247,7 @@ const normalizeText = (text) => text.replace(/\\n/g, "\n");
  * 관광지 목록
  * =============================== */
 
-async function getTouristSpots(regionCode, categoryCode, limit) {
+async function getTouristSpots(regionCode, categoryCode, recordLimit) {
 	console.log('[관광지목록] region:', regionCode, 'category:', categoryCode);
 	const query = 
 		`
