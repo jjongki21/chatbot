@@ -364,14 +364,14 @@ function buildMainMenuResponse(regionCode) {
 								},
 								// 3) 교통 · 편의 정보
 								{
-									title: '교통·편의 정보',
+									title: '교통·편의정보',
 									description: '주차장·버스·안내소 위치를 쉽게 찾아보세요.',
 									thumbnail: {
 										imageUrl: `${defURL}/images/kyeongsan_m_3_traffic.png`,
 									},
 									buttons: [
 										{
-											label: '교통편의 보러가기',
+											label: '교통·편의정보 보러가기',
 											action: 'message',
 											messageText: getBlockByMenu("TRANSPORT").utterances[0],
 										},
@@ -798,14 +798,12 @@ function getBusRouteTypeLabel(routeType) {
 }
 
 function buildBusInfoResponse(regionCode) {
-	const text = '경산 시내버스 정보를 안내해 드릴게요 🚌\n원하시는 노선 유형을 선택해 주세요 👇';
-
 	return {
 		version: '2.0',
 		template: {
 			outputs: [
 				{
-					simpleText: { text, },
+					simpleText: { '경산 시내버스 정보를 안내해 드릴게요 🚌\n원하시는 노선 유형을 선택해 주세요 👇', },
 				},
 			],
 			quickReplies: [
