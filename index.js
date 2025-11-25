@@ -41,19 +41,34 @@ app.post('/kakao/webhook', async (req, res) => {
 
 		let kakaoResponse;
 
+		//intent Name은 오픈빌더에서의 블록명
 		switch (intentName) {
+			// ※ 메인 (처음으로)
+			case 'main': {
+				kakaoResponse = buildMainMenuResponse(regionCode);
+				break;
+			}
+
+			// ※ 관광지 안내
+			case 'tourist_spots': {
+				kakaoResponse = buildTouristSpotsResponse(regionCode);
+				break;
+			}
+			//    └ 문화유적/사찰
 			case 'tourist_spots_list_culture': {
 				const categoryCode = 'CULTURAL_TEMPLE';
 				const spots = await getTouristSpots(regionCode, categoryCode);
 				kakaoResponse = buildTouristSpotCarouselResponse(spots, categoryCode);
 				break;
 			}
+			//    └ 자연경관/산책명소
 			case 'tourist_spots_list_nature': {
 				const categoryCode = 'NATURE_WALK';
 				const spots = await getTouristSpots(regionCode, categoryCode);
 				kakaoResponse = buildTouristSpotCarouselResponse(spots, categoryCode);
 				break;
 			}
+			//    └ 축제/체험/볼거리
 			case 'tourist_spots_list_festival': {
 				const categoryCode = 'FESTIVAL_ACTIVITY';
 				const spots = await getTouristSpots(regionCode, categoryCode);
@@ -61,35 +76,82 @@ app.post('/kakao/webhook', async (req, res) => {
 				break;
 			}
 			
+			// ※ 시티투어 상설투어 프로그램
 			case 'tour_programs_list': {
 				const courses = await getTourCourses(regionCode);
-				kakaoResponse = buildTourCourseListResponse(courses);
+				kakaoResponse = buildTourCourseListResponse(regionCode, courses);
 				break;
 			}
-					
+			
+			// ※ 교통 및 편의정보
+			case 'transport_info': {
+				kakaoResponse = buildTrafficInfoResponse(regionCode);
+				break;
+			}
+			//    └ 주차장
 			case 'transport_info_list_parking': {
 				const categoryCode = 'PARKING';
 				const spots = await getTouristSpots(regionCode, categoryCode);
 				kakaoResponse = buildParkingCarouselResponse(spots, categoryCode);
 				break;
 			}
+			//    └ 관광안내소
 			case 'transport_info_list_center': {
 				const categoryCode = 'INFORMATION';
 				const spots = await getTouristSpots(regionCode, categoryCode);
 				kakaoResponse = buildParkingCarouselResponse(spots, categoryCode);
 				break;
-			}					
-
+			}			
+			//    └ 버스
 			case 'transport_info_list_bus': {
-				
+				break;
+			}
+			//       └ 버스-간선
+			case 'transport_info_list_bus_edge': {
+				const routeCode = 'EDGE';
+				const routeNumbers = await getBusRouteNumbersByType(regionCode, routeCode);
+				kakaoResponse = buildBusRouteQuickReplies(routeCode, routeNumbers);
+				break;
+			}
+			//       └ 버스-순환선
+			case 'transport_info_list_bus_loop': {
+				const routeCode = 'LOOP';
+				const routeNumbers = await getBusRouteNumbersByType(regionCode, routeCode);
+				kakaoResponse = buildBusRouteQuickReplies(routeCode, routeNumbers);
+				break;
+			}
+			//       └ 버스-지선
+			case 'transport_info_list_bus_branch': {
+				const routeCode = 'BRANCH';
+				const routeNumbers = await getBusRouteNumbersByType(regionCode, routeCode);
+				kakaoResponse = buildBusRouteQuickReplies(routeCode, routeNumbers);
+				break;
+			}
+			//       └ 버스 상세 정보
+			case 'transport_info_list_bus_detail': {
+				let routeNumber = getParam(params, 'route_number', null);
+				if (!routeNumber && body.userRequest && body.userRequest.utterance) {
+					routeNumber = body.userRequest.utterance.trim();
+				}
+				console.log('[transport_info_list_bus_detail] region:', regionCode, 'routeNumber:', routeNumber);
+
+				if (!routeNumber) {
+					kakaoResponse = buildSimpleTextResponse(
+						'조회할 버스 번호를 찾지 못했어요 😢\n버스 번호를 다시 한 번 눌러 주세요.');
+					break;
+				}
+
+				const route = await getBusRouteDetail(regionCode, routeNumber);
+				kakaoResponse = buildBusRouteDetailResponse(route);
+				break;
+			}
+			//    └ 이동경로
+			case 'transport_info_list_route': {
 				break;
 			}
 			
-			case 'transport_info_list_route': {
-				
-				break;
-			}
-
+			
+			
 				  case 'FAQ_목록': {
 					const faqCategoryCode = getParam(params, 'category_code', null);
 					console.log('[FAQ_목록] region:', regionCode, 'category:', faqCategoryCode);
@@ -235,10 +297,142 @@ function buildNaverMapLauncherUrl(name, lat, lng) {
 const normalizeText = (text) => text.replace(/\\n/g, "\n");
 
 
+function buildMainMenuResponse(regionCode) {
+	//if (regionCode == 'gyeongsan')
+	//{
+		return {
+			version: '2.0',
+			template: {
+				outputs: [
+					{
+						carousel: {
+							type: 'basicCard',
+							items: [
+								// 1) 관광지 안내
+								{
+									title: '관광지 안내',
+									description: '문화유적·자연명소·축제 정보를 한눈에!',
+									thumbnail: {
+										imageUrl: 'https://yktout-chatbot-web.onrender.com/images/kyeongsan_m_1_info.png',
+									},
+									buttons: [
+										{
+											label: '관광지 보러가기',
+											action: 'message',
+											messageText: '관광지 안내',
+										},
+									],
+								},
+								// 2) 투어 프로그램 안내
+								{
+									title: '투어 프로그램 안내',
+									description: '테마별 여행 코스를 편하게 즐겨보세요!',
+									thumbnail: {
+										imageUrl: 'https://yktout-chatbot-web.onrender.com/images/kyeongsan_m_2_info.png',
+									},
+									buttons: [
+										{
+											label: '투어 프로그램 보러가기',
+											action: 'message',
+											messageText: '투어 프로그램',
+										},
+									],
+								},
+								// 3) 교통 · 편의 정보
+								{
+									title: '교통·편의 정보',
+									description: '주차장·버스·안내소 위치를 쉽게 찾아보세요.',
+									thumbnail: {
+										imageUrl: 'https://yktout-chatbot-web.onrender.com/images/kyeongsan_m_3_info.png',
+									},
+									buttons: [
+										{
+											label: '교통편의 정보 보기',
+											action: 'message',
+											messageText: '교통편의정보',
+										},
+									],
+								},
+								// 4) 자주 묻는 질문
+								{
+									title: '자주 묻는 질문',
+									description: '여행 중 자주 물어보는 정보를 모았어요.',
+									thumbnail: {
+										imageUrl: 'https://yktout-chatbot-web.onrender.com/images/kyeongsan_m_4_info.png',
+									},
+									buttons: [
+										{
+											label: 'FAQ 보기',
+											action: 'message',
+											messageText: '자주 묻는 질문',
+										},
+									],
+								},
+							],
+						},
+					},
+				],
+				quickReplies: [
+					{
+						label: '처음으로',
+						action: 'message',
+						messageText: '처음으로',
+					},
+				],
+			},
+		};
+	//}
+}
+
+
 
 /* ===============================
  * 관광지 목록
  * =============================== */
+ 
+function buildTouristSpotsResponse(regionCode) {
+	//if (regionCode == 'gyeongsan')
+	//{
+		const text = '경산의 명소들을 소개해드릴게요!\n원하시는 관광지 유형을 선택해 주세요 👇';
+
+		return {
+			version: '2.0',
+			template: {
+				outputs: [
+					{
+						basicCard: {
+							description: text,
+							buttons: [
+								{
+									label: '문화유적/사찰',
+									action: 'message',
+									messageText: '문화유적 사찰',
+								},
+								{
+									label: '자연경관/산책명소',
+									action: 'message',
+									messageText: '자연경관 산책명소',
+								},
+								{
+									label: '축제,체험,볼거리',
+									action: 'message',
+									messageText: '축제 체험 볼거리',
+								},
+							],
+						},
+					},
+				],
+				quickReplies: [
+					{
+						label: '처음으로',
+						action: 'message',
+						messageText: '처음으로',
+					},
+				],
+			},
+		};
+	//}
+}
 
 async function getTouristSpots(regionCode, categoryCode) {
 	console.log('[관광지목록] region:', regionCode, 'category:', categoryCode);
@@ -265,24 +459,23 @@ function buildTouristSpotCarouselResponse(spots) {
 		return buildSimpleTextResponse('해당 카테고리의 관광지 정보를 찾지 못했어요 😢\n다른 유형을 선택해 주세요.');
 	}
 
-	// BasicCard 캐러셀 아이템 생성
 	const items = spots.slice(0, 10).map(s => {
-		// 설명 : 요약 + 주소
 		const descLines = [];
 		if (s.summary) descLines.push(s.summary);
 		if (s.address) descLines.push(`📍 ${s.address}`);
 		
 		const description = descLines.join('\n');
 		const naverMapUrl = buildNaverMapLauncherUrl(s.name_ko, s.latitude, s.longitude);
-		const homepageUrl = s.homepage_url || naverMapUrl;
-
+		
 		const buttons = [];
 
-		buttons.push({
-			label: '웹페이지 보기',
-			action: 'webLink',
-			webLinkUrl: homepageUrl,
-		});
+		if (s.homepage_url) {
+			buttons.push({
+				label: '웹페이지 보기',
+				action: 'webLink',
+				webLinkUrl: s.homepage_url,
+			});
+		}
 
 		buttons.push({
 			label: '네이버지도 경로',
@@ -361,7 +554,7 @@ async function getTourCourses(regionCode) {
 	return result.rows; 
 }
   
-function buildCityTourHeaderCard() {
+function buildCityTourResponse(regionCode) {
 	const title = '경산 시티투어 안내';
 	const description =
 		'경산 곳곳의 명소를 하루에 즐기는 관광버스 시티투어입니다 🚌\n\n' +
@@ -378,7 +571,7 @@ function buildCityTourHeaderCard() {
 				{
 					label: '전화 예약',
 					action: 'phone',
-					phoneNumber: '053-819-0333', // 경산문화관광재단 축제관광팀
+					phoneNumber: '053-819-0333',
 				},
 				{
 					label: '온라인 예약',
@@ -390,7 +583,7 @@ function buildCityTourHeaderCard() {
 	};
 }
 
-function buildTourCourseListResponse(courses) {
+function buildTourCourseListResponse(regionCode, courses) {
 	if (!courses || courses.length === 0) {
 		return buildSimpleTextResponse(
 			'현재 운영 중인 경산 시티투어 코스를 찾지 못했어요 😢\n' +
@@ -420,8 +613,7 @@ function buildTourCourseListResponse(courses) {
 		version: '2.0',
 		template: {
 			outputs: [
-				buildCityTourHeaderCard(),
-				// 코스 목록 카드 캐러셀
+				buildCityTourResponse(regionCode),
 				{
 					carousel: {
 						type: 'basicCard',
@@ -445,30 +637,74 @@ function buildTourCourseListResponse(courses) {
 /* ===============================
  * 교통 및 편의정보 목록
  * =============================== */
+ 
+function buildTrafficInfoResponse(regionCode) {
+	let text = '';
+	
+	if (regionCode == 'gyeongsan')
+		text = '이동이 편한 경산 여행! 어디든 도와드릴게요 🚆🚌 \n필요한 정보를 선택해 주세요 👇';
+
+	return {
+		version: '2.0',
+		template: {
+			outputs: [
+				{
+					simpleText: { text,  },
+				},
+			],
+			quickReplies: [
+				{
+					label: '처음으로',
+					action: 'message',
+					messageText: '처음으로',
+				},
+				{
+					label: '주차장',
+					action: 'message',
+					messageText: '주차장',
+				},
+				{
+					label: '버스',
+					action: 'message',
+					messageText: '버스',
+				},
+				{
+					label: '관광안내소',
+					action: 'message',
+					messageText: '관광안내소',
+				},
+				{
+					label: '이동 동선',
+					action: 'message',
+					messageText: '이동동선',
+				},
+			],
+		},
+	};
+}
 
 function buildParkingCarouselResponse(spots) {
 	if (!spots || spots.length === 0) {
 		return buildSimpleTextResponse('해당 카테고리의 정보를 찾지 못했어요 😢\n다른 유형을 선택해 주세요.');
 	}
 
-	// BasicCard 캐러셀 아이템 생성
 	const items = spots.slice(0, 10).map(s => {
-		// 설명 : 요약 + 주소
 		const descLines = [];
 		if (s.summary) descLines.push(s.summary);
 		if (s.address) descLines.push(`📍 ${s.address}`);
 		
 		const description = descLines.join('\n');
 		const naverMapUrl = buildNaverMapLauncherUrl(s.name_ko, s.latitude, s.longitude);
-		const homepageUrl = s.homepage_url || naverMapUrl;
-
+		
 		const buttons = [];
 
-		buttons.push({
-			label: '웹페이지 보기',
-			action: 'webLink',
-			webLinkUrl: homepageUrl,
-		});
+		if (s.homepageUrl) {
+			buttons.push({
+				label: '웹페이지 보기',
+				action: 'webLink',
+				webLinkUrl: s.homepage_url,
+			});
+		}
 
 		buttons.push({
 			label: '네이버지도 경로',
@@ -528,80 +764,189 @@ function buildParkingCarouselResponse(spots) {
 	};
 }
 
-
-
-// 교통·편의 정보 목록 조회
-async function getTransportInfo(regionCode, categoryCode) {
-  const query = `
-    SELECT id, name_ko, summary, main_image_url, address
-    FROM transport_info
-    WHERE region_code = $1
-      AND category_code = $2
-      AND is_active = TRUE
-    ORDER BY sort_order NULLS LAST, name_ko
-    LIMIT 5;
-  `;
-  const values = [regionCode, categoryCode];
-
-  const result = await pool.query(query, values);
-  return result.rows;
+function getBusRouteTypeLabel(routeType) {
+	switch (routeType) {
+		case 'EDGE': 	return '간선버스';
+		case 'LOOP': 	return '순환버스';
+		case 'BRANCH':	return '지선버스';
+		default:		return '버스';
+	}
 }
 
-// 교통/편의 목록 응답
-function buildTransportListResponse(items, categoryCode) {
-  if (!items || items.length === 0) {
-    return buildSimpleTextResponse(
-      '해당 종류의 교통/편의 정보를 찾지 못했어요 😢\n' +
-      '다른 메뉴를 선택해 주세요.'
-    );
-  }
+async function getBusRouteNumbersByType(regionCode, routeType) {
+	console.log('▶ getBusRouteNumbersByType()', regionCode, routeType);
 
-  let text = '🚗 교통 및 편의 정보\n\n';
-  items.forEach((i, idx) => {
-    text += `${idx + 1}. ${i.name_ko}\n`;
-    if (i.summary) text += `   - ${i.summary}\n`;
-    if (i.address) text += `   📌 ${i.address}\n`;
-    text += '\n';
-  });
+	const text = `
+		SELECT DISTINCT route_number
+			FROM bus_routes
+			WHERE region_code = $1
+			  AND route_type = $2
+			  AND is_active = TRUE
+			ORDER BY route_number;
+		`;
+	
+	const values = [regionCode, routeType];
+	const result = await pool.query({ text, values });
+	console.log('  rowCount =', result.rowCount);
 
-  return {
-    version: '2.0',
-    template: {
-      outputs: [
-        {
-          simpleText: { text },
-        },
-      ],
-      quickReplies: [
-		{
-          label: '처음으로',
-          action: 'message',
-          messageText: '처음으로',
-        },
-        {
-          label: '주차장',
-          action: 'message',
-          messageText: '주차장 정보',
-        },
-        {
-          label: '버스',
-          action: 'message',
-          messageText: '버스 정보',
-        },
-        {
-          label: '관광안내소',
-          action: 'message',
-          messageText: '관광안내소 정보',
-        },
-        {
-          label: '이동 동선',
-          action: 'message',
-          messageText: '이동 동선 알려줘',
-        },
-      ],
-    },
-  };
+	return result.rows.map(r => r.route_number);
 }
+
+async function getBusRouteDetail(regionCode, routeNumber) {
+	console.log('▶ getBusRouteDetail()', regionCode, routeNumber);
+
+	const text = `
+		SELECT id, region_code, route_number, route_type, origin_name, destination_name,
+			   interval_info, first_bus_time, last_bus_time, weekday_timetable_url, holiday_timetable_url,
+			   route_map_url, sort_order
+			FROM bus_routes
+			WHERE region_code = $1
+			  AND route_number = $2
+			  AND is_active = TRUE
+			LIMIT 1;
+		`;
+		
+	const values = [regionCode, routeNumber];
+	const result = await pool.query({ text, values });
+	console.log('  rowCount =', result.rowCount);
+
+	return result.rows[0] || null;
+}
+
+function buildBusRouteQuickReplies(routeType, routeNumbers) {
+	const typeLabel = getBusRouteTypeLabel(routeType);
+
+	if (!routeNumbers || routeNumbers.length === 0) {
+		return buildSimpleTextResponse(`${typeLabel} 정보를 찾지 못했어요 😢\n다른 노선을 선택해 주세요.`);
+	}
+
+	const quickReplies = routeNumbers.map(num => ({
+		label: num,
+		action: 'message',
+		messageText: num,
+	}));
+
+	return {
+		version: '2.0',
+		template: {
+			outputs: [
+				{
+					simpleText: {
+						text: `${typeLabel} 노선을 선택해 주세요.\n원하시는 버스 번호를 누르시면 상세 정보를 안내해 드릴게요.`,
+					},
+				},
+			],
+			quickReplies: [
+				...quickReplies,
+				{
+					label: '처음으로',
+					action: 'message',
+					messageText: '처음으로',
+				},
+			],
+		},
+	};
+}
+
+function buildBusRouteDetailResponse(route) {
+	if (!route) {
+		return buildSimpleTextResponse('해당 버스 노선 정보를 찾지 못했어요 😢\n번호를 다시 한 번 확인해 주세요.');
+	}
+
+	const typeLabel = getBusRouteTypeLabel(route.route_type);
+	
+	const descLines = [];
+	descLines.push(`노선번호: ${route.route_number} (${typeLabel})`);
+	descLines.push(`출발지: ${route.origin_name}`);
+	descLines.push(`도착지: ${route.destination_name}`);
+
+	if (route.interval_info) descLines.push(`배차간격: ${route.interval_info}`);
+	if (route.first_bus_time || route.last_bus_time) {
+		descLines.push(`첫차/막차: ${route.first_bus_time || '-'} ~ ${route.last_bus_time || '-'}`);
+	}
+
+	const description = descLines.join('\n');
+	
+	const buttons = [];
+	if (route.weekday_timetable_url) {
+		buttons.push({
+			label: '평일 시간표',
+			action: 'webLink',
+			webLinkUrl: route.weekday_timetable_url,
+		});
+	}
+
+	if (route.holiday_timetable_url) {
+		buttons.push({
+			label: '주말/공휴일 시간표',
+			action: 'webLink',
+			webLinkUrl: route.holiday_timetable_url,
+		});
+	}
+
+	if (route.route_map_url) {
+		buttons.push({
+			label: '노선도 보기',
+			action: 'webLink',
+			webLinkUrl: route.route_map_url,
+		});
+	}
+
+	if (buttons.length === 0) {
+		buttons.push({
+			label: '다른 노선 보기',
+			action: 'message',
+			messageText: '버스정보',
+		});
+	}
+
+	return {
+		version: '2.0',
+		template: {
+			outputs: [
+				{
+					basicCard: {
+						title: `${route.route_number}번`,
+						description,
+						thumbnail: {
+							imageUrl: 'https://yktout-chatbot-web.onrender.com/images/bus_default.png',
+						},
+						buttons,
+					},
+				},
+			],
+			quickReplies: [
+				{
+					label: '처음으로',
+					action: 'message',
+					messageText: '처음으로',
+				},
+				{
+					label: '간선버스',
+					action: 'message',
+					messageText: '간선버스',
+				},
+				{
+					label: '순환버스',
+					action: 'message',
+					messageText: '순환버스',
+				},
+				{
+					label: '지선버스',
+					action: 'message',
+					messageText: '지선버스',
+				},
+			],
+		},
+	};
+}
+
+
+
+
+
+
+
 
 
 
