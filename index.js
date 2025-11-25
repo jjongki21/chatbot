@@ -690,7 +690,7 @@ function buildTransportInfoMenuResponse(regionCode) {
 						action: 'message',
 						messageText: FirstUtterance('MAIN'),
 					},
-					/*{
+					{
 						label: '주차장',
 						action: 'message',
 						messageText: FirstUtterance('TRANS_PARKING'),
@@ -709,7 +709,7 @@ function buildTransportInfoMenuResponse(regionCode) {
 						label: '이동동선',
 						action: 'message',
 						messageText: FirstUtterance('TRANS_ROUTE'),
-					},*/
+					},
 				],
 			},
 		};
