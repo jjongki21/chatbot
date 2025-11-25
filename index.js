@@ -54,7 +54,7 @@ const BlockList = [
 	new BlockInfo('TRANS_BUS_EDGE',		'transport_info_list_bus_edge', 	'EDGE', 				['간선버스', '간선', '간선버스 알려줘']),
 	new BlockInfo('TRANS_BUS_LOOP',		'transport_info_list_bus_loop', 	'LOOP', 				['순환버스', '순환', '순환버스 알려줘']),
 	new BlockInfo('TRANS_BUS_BRANCH',	'transport_info_list_bus_branch', 	'BRANCH', 				['지선버스', '지선', '지선버스 알려줘']),
-	new BlockInfo('TRANS_BUS_DETAIL',	'transport_info_list_detail', 		'BUS_DETAIL', 			['^(?:\d+(?:-\d+)?|[가-힣]+[0-9]+(?:-[0-9]+)?)$']),
+	new BlockInfo('TRANS_BUS_DETAIL',	'transport_info_list_bus_detail', 	'BUS_DETAIL', 			['']),
 	new BlockInfo('QNA_MAIN',			'qna', 								'QNA_MAIN', 			['자주 묻는 질문', '질문']),
 ];
 
