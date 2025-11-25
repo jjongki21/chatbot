@@ -106,6 +106,7 @@ app.post('/kakao/webhook', async (req, res) => {
 			}			
 			//    └ 버스
 			case 'transport_info_list_bus': {
+				kakaoResponse = buildBusInfoResponse(regionCode);
 				break;
 			}
 			//       └ 버스-간선
@@ -773,6 +774,43 @@ function getBusRouteTypeLabel(routeType) {
 		case 'BRANCH':	return '지선버스';
 		default:		return '버스';
 	}
+}
+
+function buildBusInfoResponse(regionCode) {
+	const text = '경산 시내버스 정보를 안내해 드릴게요 🚌\n원하시는 노선 유형을 선택해 주세요 👇';
+
+	return {
+		version: '2.0',
+		template: {
+			outputs: [
+				{
+					simpleText: { text, },
+				},
+			],
+			quickReplies: [
+				{
+					label: '처음으로',
+					action: 'message',
+					messageText: '처음으로',
+				},
+				{
+					label: '간선',
+					action: 'message',
+					messageText: '간선버스',
+				},
+				{
+					label: '순환선',
+					action: 'message',
+					messageText: '순환버스',
+				},
+				{
+					label: '지선',
+					action: 'message',
+					messageText: '지선버스',
+				},
+			],
+		},
+	};
 }
 
 async function getBusRouteNumbersByType(regionCode, routeType) {
