@@ -798,12 +798,14 @@ function getBusRouteTypeLabel(routeType) {
 }
 
 function buildBusInfoResponse(regionCode) {
+	const text = '경산 시내버스 정보를 안내해 드릴게요 🚌\n원하시는 노선 유형을 선택해 주세요 👇';
+	
 	return {
 		version: '2.0',
 		template: {
 			outputs: [
 				{
-					simpleText: { '경산 시내버스 정보를 안내해 드릴게요 🚌\n원하시는 노선 유형을 선택해 주세요 👇', },
+					simpleText: { text, },
 				},
 			],
 			quickReplies: [
