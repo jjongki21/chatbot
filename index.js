@@ -663,48 +663,48 @@ function buildTourCourseListResponse(regionCode, courses) {
  * =============================== */
  
 function buildTrafficInfoResponse(regionCode) {
-	let text = '';
-	
-	if (regionCode == 'gyeongsan')
-		text = '이동이 편한 경산 여행! 어디든 도와드릴게요 🚆🚌\n필요한 정보를 선택해 주세요 👇';
+	//if (regionCode == 'gyeongsan') {
+		
+		const text = '이동이 편한 경산 여행! 어디든 도와드릴게요 🚆🚌\n필요한 정보를 선택해 주세요 👇';
 
-	return {
-		version: '2.0',
-		template: {
-			outputs: [
-				{
-					simpleText: { text,  },
-				},
-			],
-			quickReplies: [
-				{
-					label: '처음으로',
-					action: 'message',
-					messageText: getBlockByMenu("MAIN").utterances[0],
-				},
-				{
-					label: '주차장',
-					action: 'message',
-					messageText: getBlockByMenu("TRANS_PARKING").utterances[0],
-				},
-				{
-					label: '버스',
-					action: 'message',
-					messageText: getBlockByMenu("TRANS_BUS").utterances[0],
-				},
-				{
-					label: '관광안내소',
-					action: 'message',
-					messageText: getBlockByMenu("TRANS_CENTER").utterances[0],
-				},
-				{
-					label: '이동 동선',
-					action: 'message',
-					messageText: getBlockByMenu("TRANS_ROUTE").utterances[0],
-				},
-			],
-		},
-	};
+		return {
+			version: '2.0',
+			template: {
+				outputs: [
+					{
+						simpleText: { text,  },
+					},
+				],
+				quickReplies: [
+					{
+						label: '처음으로',
+						action: 'message',
+						messageText: getBlockByMenu("MAIN").utterances[0],
+					},
+					{
+						label: '주차장',
+						action: 'message',
+						messageText: getBlockByMenu("TRANS_PARKING").utterances[0],
+					},
+					{
+						label: '버스',
+						action: 'message',
+						messageText: getBlockByMenu("TRANS_BUS").utterances[0],
+					},
+					{
+						label: '관광안내소',
+						action: 'message',
+						messageText: getBlockByMenu("TRANS_CENTER").utterances[0],
+					},
+					{
+						label: '이동 동선',
+						action: 'message',
+						messageText: getBlockByMenu("TRANS_ROUTE").utterances[0],
+					},
+				],
+			},
+		};
+	//}
 }
 
 function buildParkingCarouselResponse(spots) {
