@@ -1286,10 +1286,10 @@ async function getFaqsByCategory(regionCode, categoryCode) {
 // Enum to Label - 질문 카테고리별 명칭
 function getFaqCategoryLabel(categoryCode) {
 	switch (categoryCode) {
-		case 'TOUR_GUIDE':		return '관광 정보 안내';
-		case 'TRANSPORT':		return '교통 및 주차 안내';
-		case 'TOUR_PROGRAM':	return '시티투어 · 투어 프로그램 안내';
-		case 'FESTIVAL':		return '축제 · 행사 안내';
+		case 'QNA_TOUR':		return '관광 정보 안내';
+		case 'QNA_TRANSPORT':	return '교통 및 주차 안내';
+		case 'QNA_PROGRAM':		return '시티투어 · 투어 프로그램 안내';
+		case 'QNA_FESTIVAL':	return '축제 · 행사 안내';
 		default:				return categoryCode;
 	}
 }
