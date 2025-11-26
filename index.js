@@ -314,66 +314,6 @@ app.post('/kakao/webhook', async (req, res) => {
 });
 
 
-/* ===============================
- * 지도 버튼 응답
- * =============================== */
- 
-app.get('/openmap', (req, res) => {
-	const { lat, lng, name } = req.query;
-
-	const userAgent = req.headers['user-agent'] || '';
-	const isIOS = /iPhone|iPad|iPod/i.test(userAgent);
-	const isAndroid = /Android/i.test(userAgent);
-
-	const safeLat = lat || '';
-	const safeLng = lng || '';
-	const safeName = name || '';
-
-	res.send(`
-		<!DOCTYPE html>
-		<html lang="ko">
-		<head>
-			<meta charset="utf-8" />
-			<title>네이버 지도 열기</title>
-			<meta name="viewport" content="width=device-width, initial-scale=1" />
-			
-			<script>
-				var LAT = ${JSON.stringify(safeLat)};
-				var LNG = ${JSON.stringify(safeLng)};
-				var NAME = ${JSON.stringify(safeName)};
-				var IS_IOS = ${isIOS ? 'true' : 'false'};
-				var IS_ANDROID = ${isAndroid ? 'true' : 'false'};
-
-				function openNaverMap() {
-					var encodedName = encodeURIComponent(NAME || "");
-					var appUrl = "nmap://route/car?dlat=" + LAT + "&dlng=" + LNG + "&dname=" + encodedName;
-
-					// 네이버 지도 웹 (앱 없거나 앱 실행 실패 시)
-					var webUrl = "https://map.naver.com/v5/directions/-/" + LNG + "," + LAT + "," + encodedName;
-
-					var start = Date.now();
-
-					window.location.href = appUrl;
-
-					// 일정 시간 내에 앱이 안 열리면 웹으로 이동
-					setTimeout(function() {
-					var elapsed = Date.now() - start;
-						if (elapsed < 1500) {
-							window.location.href = webUrl;
-						}
-					}, 1200);
-				}
-
-				window.onload = openNaverMap;
-			</script>
-		</head>
-		<body>
-		</body>
-		</html>`
-	);
-});
-
-
 
 /* ===============================
  * Render환경용 포트 설정
@@ -413,26 +353,8 @@ function getParam(params, name, defaultValue) {
 }
 
 // Utility - 네이버지도 URL 변환
-function buildNaverMapLauncherUrl(name, lat, lng) {
-	const nName = name || '';
-	const nLat = lat || '';
-	const nLng = lng || '';
-
-	const base = `${defURL}/openmap`;
-
-	const params =
-		'name=' + encodeURIComponent(nName) +
-		'&lat=' + encodeURIComponent(nLat) +
-		'&lng=' + encodeURIComponent(nLng);
-
-	return `${base}?${params}`;
-}
-
-function buildNaverMapURL(name, address) {
-	const keyword = address
-		  ? `${name} ${address}` : name;
-
-	const encoded = encodeURIComponent(keyword);
+function buildNaverMapURL(address) {
+	const encoded = encodeURIComponent(address);
 	return `https://map.naver.com/v5/search/${encoded}`;
 }
 
@@ -633,7 +555,7 @@ function buildTouristSpotCarouselResponse(spots) {
 		}
 
 		buttons.push({
-			label: '네이버지도 경로',
+			label: '지도보기',
 			action: 'webLink',
 			webLinkUrl: naverMapUrl,
 		});
@@ -862,7 +784,7 @@ function buildParkingCarouselResponse(spots) {
 		}
 
 		buttons.push({
-			label: '네이버지도 경로',
+			label: '지도보기',
 			action: 'webLink',
 			webLinkUrl: naverMapUrl,
 		});
@@ -1216,7 +1138,7 @@ function buildTravelRouteListResponse(routes, routeType) {
 
 		if (r.map_url) {
 			buttons.push({
-				label: '네이버지도 열기',
+				label: '지도보기',
 				action: 'webLink',
 				webLinkUrl: r.map_url,
 			});
