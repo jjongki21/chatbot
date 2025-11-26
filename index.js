@@ -84,6 +84,38 @@ function getFirstUtterance(menuName) {
 	}
 	return String(info.utterances[0]);
 }
+
+// Enum - 버스노선 타입별 명칭
+function getBusRouteTypeLabel(routeType) {
+	switch (routeType) {
+		case 'EDGE': 	return '간선버스';
+		case 'LOOP': 	return '순환버스';
+		case 'BRANCH':	return '지선버스';
+		default:		return '버스';
+	}
+}
+
+// Enum - 이동동선 타입별 명칭
+function getTravelRouteTypeLabel(routeType) {
+	switch (routeType) {
+		case 'THEME': 	return '테마형 이동 동선';
+		case 'HUB':		return '출발지(허브) 기준 동선';
+		case 'COURSE':	return '반나절/1일 코스';
+		default:		return '이동 동선';
+	}
+}
+
+// Enum - 질문 카테고리별 명칭
+function getFaqCategoryLabel(categoryCode) {
+	switch (categoryCode) {
+		case 'QNA_TOUR':		return '관광 정보 안내';
+		case 'QNA_TRANSPORT':	return '교통 및 주차 안내';
+		case 'QNA_PROGRAM':		return '시티투어 · 투어 프로그램 안내';
+		case 'QNA_FESTIVAL':	return '축제 · 행사 안내';
+		default:				return categoryCode;
+	}
+}
+ 
  
 
 /* ===============================
@@ -917,16 +949,6 @@ function buildBusRouteMenuResponse(regionCode) {
 	//}
 }
 
-// Enum to Label - 버스노선 타입별 명칭
-function getBusRouteTypeLabel(routeType) {
-	switch (routeType) {
-		case 'EDGE': 	return '간선버스';
-		case 'LOOP': 	return '순환버스';
-		case 'BRANCH':	return '지선버스';
-		default:		return '버스';
-	}
-}
-
 // DB - 타입별 버스노선 목록
 async function getBusRouteNumbersByType(regionCode, routeType) {
 	const text = `
@@ -1132,16 +1154,6 @@ function buildTravelRouteMenuResponse(regionCode) {
 	//}
 }
 
-// Enum to Label - 이동동선 타입별 명칭
-function getTravelRouteTypeLabel(routeType) {
-	switch (routeType) {
-		case 'THEME': 	return '테마형 이동 동선';
-		case 'HUB':		return '출발지(허브) 기준 동선';
-		case 'COURSE':	return '반나절/1일 코스';
-		default:		return '이동 동선';
-	}
-}
-
 // DB - 이동동선
 async function getTravelRoutes(regionCode, routeType = null) {
 	console.log('▶ getTravelRoutes()', regionCode, routeType);
@@ -1283,17 +1295,6 @@ async function getFaqsByCategory(regionCode, categoryCode) {
 	return result.rows;
 }
 
-// Enum to Label - 질문 카테고리별 명칭
-function getFaqCategoryLabel(categoryCode) {
-	switch (categoryCode) {
-		case 'QNA_TOUR':		return '관광 정보 안내';
-		case 'QNA_TRANSPORT':	return '교통 및 주차 안내';
-		case 'QNA_PROGRAM':		return '시티투어 · 투어 프로그램 안내';
-		case 'QNA_FESTIVAL':	return '축제 · 행사 안내';
-		default:				return categoryCode;
-	}
-}
-
 // String - F&A 카테고리와 블록 매핑
 function getFaqCategoryMessageText(categoryCode) {
 	const info = BlockList.find(b => b.category === categoryCode) || null;
@@ -1404,10 +1405,6 @@ function buildFaqListResponse(categoryCode, faqs) {
 		},
 	};
 }
-
-
-
-
 
 // DB - 키워드별 FAQ 목록
 async function searchFaqs(regionCode, keyword, limit = 5) {
