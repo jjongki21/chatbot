@@ -65,6 +65,7 @@ const BlockList = [
 	new BlockInfo('QNA_TRANSPORT',		'qna_list_transport', 				'TRANSPORT', 			['교통편의 질문']),
 	new BlockInfo('QNA_PROGRAM',		'qna_list_program', 				'TOUR_PROGRAM', 		['투어 프로그램 질문']),
 	new BlockInfo('QNA_FESTIVAL',		'qna_list_festival', 				'FESTIVAL', 			['축제행사 질문']),
+	new BlockInfo('QNA_SEARCH',			'qna_list_search', 					'SEARCH', 				['질문할게 있어']),	// 질문 검색인데 귀찮아서 뺌
 ];
 
 function getBlockByName(blockName) {
@@ -217,6 +218,7 @@ app.post('/kakao/webhook', async (req, res) => {
 						
 			// ※ 자주 하는 질문
 			case 'QNA_MAIN': {
+				const categories = await getFaqCategories(regionCode);
 				kakaoResponse = buildFaqCategoryListResponse(categories);
 				break;
 			}
@@ -244,7 +246,22 @@ app.post('/kakao/webhook', async (req, res) => {
 				kakaoResponse = buildFaqListResponse('FESTIVAL', faqs);
 				break;
 			}
-			
+			//    └ 커스텀 질문
+			case 'QNA_SEARCH': {
+				const userText = body.userRequest && body.userRequest.utterance
+								? body.userRequest.utterance.trim() : '';
+				console.log('[qna_search] utterance =', userText);
+
+				if (!userText) {
+					kakaoResponse = buildSimpleTextResponse('궁금한 내용을 자연스럽게 입력해 주세요 😊\n예) 갓바위 주차장 알려줘');
+					break;
+				}
+
+				const faqs = await searchFaqs(regionCode, userText);
+				kakaoResponse = buildFaqSearchResponse(userText, faqs);
+				break;
+			}
+
 			default: {
 				console.log('알 수 없는 intentName:', intentName);
 				kakaoResponse = buildSimpleTextResponse(
@@ -1385,6 +1402,122 @@ function buildFaqListResponse(categoryCode, faqs) {
 				},
 				{
 					label: '다른 유형의 질문',
+					action: 'message',
+					messageText: FirstUtterance('QNA_MAIN'),
+				},
+			],
+		},
+	};
+}
+
+// DB - 키워드별 FAQ 목록
+async function searchFaqs(regionCode, keyword, limit = 5) {
+	const text = `
+		SELECT f.id, f.category_code, f.question, f.answer, f.sort_order, c.title AS category_title
+			FROM faqs f
+				JOIN faq_categories c
+				  ON f.category_code = c.category_code
+			WHERE c.region_code = $1
+			  AND f.is_active = TRUE
+			  AND c.is_active = TRUE
+			  AND (
+					f.question ILIKE '%' || $2 || '%'
+					OR f.answer ILIKE '%' || $2 || '%'
+				  )
+			ORDER BY f.sort_order ASC, f.id ASC
+			LIMIT $3;
+	`;
+
+	const values = [regionCode, keyword, limit];
+	const result = await pool.query({ text, values });
+	
+	return result.rows;
+}
+
+// Webhook json - 키워드별 FAQ 답변 목록
+function buildFaqSearchResponse(keyword, faqs) {
+	if (!faqs || faqs.length === 0) {
+		return {
+			version: '2.0',
+			template: {
+				outputs: [
+					{
+						simpleText: {
+							text:
+								`검색어 "${keyword}" 에 해당하는 자주 묻는 질문을 찾지 못했어요 😢\n` +
+								`표현을 조금 바꾸어 다시 질문해 보시거나,\n` +
+								`"자주 묻는 질문" 버튼을 눌러 카테고리별로 확인해 주세요.`,
+						},
+					},
+				],
+				quickReplies: [
+					{
+						label: '처음으로',
+						action: 'message',
+						messageText: FirstUtterance('MAIN'),
+					},
+					{
+						label: '자주 묻는 질문',
+						action: 'message',
+						messageText: FirstUtterance('QNA_MAIN'),
+					},
+				],
+			},
+		};
+	}
+
+	const items = faqs.map((f) => {
+		const question = f.question || '질문';
+		const answer = f.answer && f.answer.trim().length > 0
+			? f.answer : '답변 준비 중입니다. 조금만 기다려 주세요.';
+
+		const categoryTitle = f.category_title || f.category_code || '';
+
+		const descLines = [];
+		if (categoryTitle) descLines.push(`📂 카테고리: ${categoryTitle}`);
+		descLines.push('');
+		descLines.push(answer);
+
+		return {
+			title: question,
+			description: descLines.join('\n'),
+			thumbnail: {
+				mageUrl: '${defURL}/images/kyeongsan_m_4_faq.png',
+			},
+			buttons: [
+				{
+					label: '처음으로',
+					action: 'message',
+					messageText: FirstUtterance('MAIN'),
+				},
+				{
+					label: '다른 질문 하기',
+					action: 'message',
+					messageText: FirstUtterance('QNA_SEARCH'),
+				},
+			],
+		};
+	});
+
+	return {
+		version: '2.0',
+		template: {
+			outputs: [
+				{
+					carousel: {
+						type: 'basicCard',
+						items,
+					},
+				},
+			],
+			quickReplies: [
+				{
+					label: '처음으로',
+					action: 'message',
+					messageText: FirstUtterance('MAIN'),
+				},
+				{
+					label: '자주 묻는 질문',
 					action: 'message',
 					messageText: FirstUtterance('QNA_MAIN'),
 				},
