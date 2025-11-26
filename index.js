@@ -541,8 +541,7 @@ function buildTouristSpotCarouselResponse(spots) {
 		if (s.address) descLines.push(`📍 ${s.address}`);
 		
 		const description = descLines.join('\n');
-		const naverMapUrl = //buildNaverMapLauncherUrl(s.name_ko, s.latitude, s.longitude);
-							buildNaverMapURL(s.name_ko, s.address);
+		const naverMapUrl = buildNaverMapURL(s.address);
 		
 		const buttons = [];
 
@@ -770,8 +769,7 @@ function buildParkingCarouselResponse(spots) {
 		if (s.address) descLines.push(`📍 ${s.address}`);
 		
 		const description = descLines.join('\n');
-		const naverMapUrl = //buildNaverMapLauncherUrl(s.name_ko, s.latitude, s.longitude);
-							buildNaverMapURL(s.name_ko, s.address);
+		const naverMapUrl = buildNaverMapURL(s.address);
 		
 		const buttons = [];
 
