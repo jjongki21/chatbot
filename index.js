@@ -1118,10 +1118,10 @@ function buildTravelRouteListResponse(routes, routeType) {
 		return buildSimpleTextResponse(`${typeLabel} 정보를 찾지 못했어요 😢\n다른 유형을 선택해 주세요.`);
 	}
 
-	const items = routes.slice(0, 10).map((r) => {
+	const texts = routes.slice(0, 10).map((r) => {
 		const lines = [];
 
-		if (r.title) lines.push(r.title);
+		if (r.title) 		lines.push(`📍 ${r.title}`);
 		if (r.description)	lines.push(r.description);
 	
 		if (Array.isArray(r.items) && r.items.length > 0) {
@@ -1131,24 +1131,16 @@ function buildTravelRouteListResponse(routes, routeType) {
 
 		if (r.total_time) 		lines.push(`🕒 소요시간: ${r.total_time}`);
 		if (r.transport_type) 	lines.push(`🚍 이동수단: ${r.transport_type}`);
-		const description = lines.join('\n');
-
-		return {
-			simpleText:
-			{
-				text: description,
-			}
-		};
+		
+		lines.join('\n');
 	});
 
 	return {
 		version: '2.0',
 		template: {
-			outputs: [
-				{
-					items,
-				},
-			],
+			outputs: texts.map((text) => ({
+				simpleText: { text },
+			})),
 			quickReplies: [
 				{
 					label: '처음으로',
