@@ -1367,8 +1367,8 @@ function buildFaqListResponse(categoryCode, faqs) {
 			
 			const question = 'Q.' + (f.question || '질문');
 			const answer = 
-				'A.' +
-				f.answer && f.answer.trim().length > 0 ? f.answer : '답변 준비 중입니다. 조금만 기다려 주세요.';
+				'A.' + 
+				(f.answer && f.answer.trim().length > 0 ? f.answer : '답변 준비 중입니다. 조금만 기다려 주세요.');
 			
 			descLines.push(question);
 			descLines.push(answer);
