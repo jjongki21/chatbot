@@ -664,28 +664,30 @@ function buildTourCourseCarouseResponse(regionCode, courses) {
 			'잠시 후 다시 시도해 주시거나, 경산문화관광재단으로 문의해 주세요.'
 		);
 	}
-
-	const items = courses.slice(0, 10).map(c => {
-		const descLines = [];
-
-		if (c.course_type) descLines.push(`📝 코스 구분: ${c.course_type}`);
+	
+	const texts = courses.slice(0, 10).map((c) => {
+		const lines = [];
+		
+		lines.push(`${c.course_name}`);
+		if (c.course_type) lines.push(`📝 코스 구분: ${c.course_type}`);
 		if (c.course_detail) {
 			const detail = normalizeText(c.course_detail);
-			descLines.push(`🚌 코스 안내\n${detail}`);
+			lines.push(`🚌 코스 안내\n${detail}`);
 		}
 		
-		const description = descLines.length > 0 ? descLines.join('\n') : '경산시티투어 코스입니다.';
-
-		return {
-			title: c.course_name,
-			description,
-			thumbnail: { imageUrl: c.course_image_url || TOUR_MAIN_IMAGE_URL, },
-		};
+		const description = lines.length > 0 ? lines.join('\n') : '경산시티투어 코스입니다.';
+		
+		return lines.join('\n');
 	});
 
 	return {
 		version: '2.0',
 		template: {
+			outputs: texts.map((text) => ({
+				simpleText: { text },
+			})),
+			
+			
 			outputs: [
 				buildCityTourResponse(regionCode),
 				{
@@ -960,6 +962,7 @@ function buildBusRouteDetailResponse(route) {
 	const typeLabel = getBusRouteTypeLabel(route.route_type);
 	
 	const descLines = [];
+	
 	descLines.push(`🚍노선번호: ${route.route_number} (${typeLabel})`);
 	descLines.push(`🚩출발지: ${route.origin_name}`);
 	descLines.push(`🎯도착지: ${route.destination_name}`);
@@ -1012,6 +1015,7 @@ function buildBusRouteDetailResponse(route) {
 					basicCard: {
 						title: `${route.route_number}번`,
 						description,
+						thumbnail: { imageUrl: `${defImgURL}kyeongsan_m_3_traffic.png`, },
 						buttons,
 					},
 				},
