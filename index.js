@@ -285,7 +285,6 @@ app.post('/kakao/webhook', async (req, res) => {
 			case 'QNA_SEARCH': {
 				const userText = body.userRequest && body.userRequest.utterance
 								? body.userRequest.utterance.trim() : '';
-				console.log('[qna_search] utterance =', userText);
 
 				if (!userText) {
 					kakaoResponse = buildSimpleTextResponse('궁금한 내용을 자연스럽게 입력해 주세요 😊\n예) 갓바위 주차장 알려줘');
@@ -306,6 +305,7 @@ app.post('/kakao/webhook', async (req, res) => {
 		}
 
 		res.json(kakaoResponse);
+	
 	} catch (err) {
 		console.error('Kakao Webhook Error:', err);
 		const errorResponse = buildSimpleTextResponse('잠시 시스템 오류가 발생했어요 😥\n잠시 후 다시 시도해 주세요.');
@@ -426,6 +426,14 @@ function buildNaverMapLauncherUrl(name, lat, lng) {
 		'&lng=' + encodeURIComponent(nLng);
 
 	return `${base}?${params}`;
+}
+
+function buildNaverMapURL(name, address) {
+	const keyword = address
+		  ? `${name} ${address}` : name;
+
+	const encoded = encodeURIComponent(keyword);
+	return `https://map.naver.com/v5/search/${encoded}`;
 }
 
 // Utility - 줄바꿈처리 함수
@@ -611,7 +619,8 @@ function buildTouristSpotCarouselResponse(spots) {
 		if (s.address) descLines.push(`📍 ${s.address}`);
 		
 		const description = descLines.join('\n');
-		const naverMapUrl = buildNaverMapLauncherUrl(s.name_ko, s.latitude, s.longitude);
+		const naverMapUrl = //buildNaverMapLauncherUrl(s.name_ko, s.latitude, s.longitude);
+							buildNaverMapURL(s.name_ko, s.address);
 		
 		const buttons = [];
 
@@ -839,7 +848,8 @@ function buildParkingCarouselResponse(spots) {
 		if (s.address) descLines.push(`📍 ${s.address}`);
 		
 		const description = descLines.join('\n');
-		const naverMapUrl = buildNaverMapLauncherUrl(s.name_ko, s.latitude, s.longitude);
+		const naverMapUrl = //buildNaverMapLauncherUrl(s.name_ko, s.latitude, s.longitude);
+							buildNaverMapURL(s.name_ko, s.address);
 		
 		const buttons = [];
 
