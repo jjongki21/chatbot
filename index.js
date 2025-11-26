@@ -226,6 +226,7 @@ app.post('/kakao/webhook', async (req, res) => {
 			}
 			//    └ 관광지 질문
 			case 'QNA_TOUR': {
+				console.log('QNA_TOUR', block.category);
 				const faqs = await getFaqsByCategory(block.category);
 				kakaoResponse = buildFaqListResponse(block.category, faqs);
 				break;
