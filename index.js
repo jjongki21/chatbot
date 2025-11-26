@@ -1358,40 +1358,41 @@ function buildFaqListResponse(categoryCode, faqs) {
 		return buildSimpleTextResponse(`${label}에 대한 자주 묻는 질문이 아직 준비되지 않았어요 😢`);
 	}
 
+	let texts = [];
+	
 	const items = faqs.slice(0, 10).map((f) => {
-		const question = f.question || '질문';
-		const answer = f.answer && f.answer.trim().length > 0 ? f.answer : '답변 준비 중입니다. 조금만 기다려 주세요.';
-
+		if(f.question) {
+			const descLines = [];
+			
+			const question = f.question || '질문';
+			const answer = f.answer && f.answer.trim().length > 0 ? f.answer : '답변 준비 중입니다. 조금만 기다려 주세요.';
+			
+			descLines.push(question);
+			descLines.push(answer);
+			descLines.push('\n');
+			
+			const description = descLines.join('\n');
+			
+			texts.push(description);
+		}
+		
 		return {
 			title: question,
 			description: answer,
 			thumbnail: {
 				mageUrl: `${defImgURL}kyeongsan_m_4_faq.png`,
 			},
-			buttons: [
-				{
-					label: '처음으로',
-					action: 'message',
-					messageText: getFirstUtterance('MAIN'),
-				},
-				{
-					label: '다른 유형의 질문',
-					action: 'message',
-					messageText: getFirstUtterance('QNA_MAIN'),
-				},
-			],
 		};
 	});
+	
+	const text = texts.join('\n');
 
 	return {
 		version: '2.0',
 		template: {
 			outputs: [
 				{
-					carousel: {
-						type: 'basicCard',
-						items,
-					},
+					simpleText: { text, },
 				},
 			],
 			quickReplies: [
@@ -1409,6 +1410,10 @@ function buildFaqListResponse(categoryCode, faqs) {
 		},
 	};
 }
+
+
+
+
 
 // DB - 키워드별 FAQ 목록
 async function searchFaqs(regionCode, keyword, limit = 5) {
