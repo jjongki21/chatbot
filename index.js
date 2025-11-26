@@ -75,11 +75,11 @@ function getBlockByName(blockName) {
 }
 
 // 블록의 첫번째 사용자발화 가져오기 (사용자발화로 블록 이동하기 위한 용도)
-function FirstUtterance(menuName) {
+function getFirstUtterance(menuName) {
 	const info = BlockList.find(b => b.menu === menuName) || null;
 	
 	if (!info || !Array.isArray(info.utterances) || info.utterances.length === 0) {
-		console.warn('Fallback used for', menuName);
+		console.warn('Fallback used for ', menuName);
 		return '';
 	}
 	return String(info.utterances[0]);
@@ -201,20 +201,20 @@ app.post('/kakao/webhook', async (req, res) => {
 			}
 			//       └ 이동경로 - 테마형
 			case 'TRANS_ROUTE_THEME': {
-				const routes = await getTravelRoutes(regionCode, 'THEME');
-				kakaoResponse = buildTravelRouteListResponse(routes, 'THEME');
+				const routes = await getTravelRoutes(regionCode, block.category);
+				kakaoResponse = buildTravelRouteListResponse(routes, block.category);
 				break;
 			}
 			//       └ 이동경로 - 출발지기준
 			case 'TRANS_ROUTE_HUB': {
-				const routes = await getTravelRoutes(regionCode, 'HUB');
-				kakaoResponse = buildTravelRouteListResponse(routes, 'HUB');
+				const routes = await getTravelRoutes(regionCode, block.category);
+				kakaoResponse = buildTravelRouteListResponse(routes, block.category);
 				break;
 			}
 			//       └ 이동경로 - 코스형
 			case 'TRANS_ROUTE_COURSE': {
-				const routes = await getTravelRoutes(regionCode, 'COURSE');
-				kakaoResponse = buildTravelRouteListResponse(routes, 'COURSE');
+				const routes = await getTravelRoutes(regionCode, block.category);
+				kakaoResponse = buildTravelRouteListResponse(routes, block.category);
 				break;
 			}
 						
@@ -226,26 +226,26 @@ app.post('/kakao/webhook', async (req, res) => {
 			}
 			//    └ 관광지 질문
 			case 'QNA_TOUR': {
-				const faqs = await getFaqsByCategory('TOUR_GUIDE');
-				kakaoResponse = buildFaqListResponse('TOUR_GUIDE', faqs);
+				const faqs = await getFaqsByCategory(block.category);
+				kakaoResponse = buildFaqListResponse(block.category, faqs);
 				break;
 			}
 			//    └ 교통편의 질문
 			case 'QNA_TRANSPORT': {
-				const faqs = await getFaqsByCategory('TRANSPORT');
-				kakaoResponse = buildFaqListResponse('TRANSPORT', faqs);
+				const faqs = await getFaqsByCategory(block.category);
+				kakaoResponse = buildFaqListResponse(block.category, faqs);
 				break;
 			}
 			//    └ 투어 프로그램 질문
 			case 'QNA_PROGRAM': {
-				const faqs = await getFaqsByCategory('TOUR_PROGRAM');
-				kakaoResponse = buildFaqListResponse('TOUR_PROGRAM', faqs);
+				const faqs = await getFaqsByCategory(block.category);
+				kakaoResponse = buildFaqListResponse(block.category, faqs);
 				break;
 			}
 			//    └ 투어 프로그램 질문
 			case 'QNA_FESTIVAL': {
-				const faqs = await getFaqsByCategory('FESTIVAL');
-				kakaoResponse = buildFaqListResponse('FESTIVAL', faqs);
+				const faqs = await getFaqsByCategory(block.category);
+				kakaoResponse = buildFaqListResponse(block.category, faqs);
 				break;
 			}
 			//    └ 커스텀 질문
@@ -432,7 +432,7 @@ function buildMainMenuResponse(regionCode) {
 											// message 액션 : 대화창에 사용자 방향에서 지정 메시지를 던지도록 처리
 											// 블록에 지정된 사용자 발화로 메시지 던지면 (ex."처음으로")
 											// 그럼 해당 블록으로 이동 (ex. "main"블록)
-											messageText: FirstUtterance('TOUR_MAIN'),
+											messageText: getFirstUtterance('TOUR_MAIN'),
 										},
 									],
 								},
@@ -447,7 +447,7 @@ function buildMainMenuResponse(regionCode) {
 										{
 											label: '투어 프로그램 보러가기',
 											action: 'message',
-											messageText: FirstUtterance('PROGRAMS'),
+											messageText: getFirstUtterance('PROGRAMS'),
 										},
 									],
 								},
@@ -462,7 +462,7 @@ function buildMainMenuResponse(regionCode) {
 										{
 											label: '교통·편의정보 보러가기',
 											action: 'message',
-											messageText: FirstUtterance('TRANSPORT'),
+											messageText: getFirstUtterance('TRANSPORT'),
 										},
 									],
 								},
@@ -477,7 +477,7 @@ function buildMainMenuResponse(regionCode) {
 										{
 											label: '자주 묻는 질문 보러가기',
 											action: 'message',
-											messageText: FirstUtterance('QNA_MAIN'),
+											messageText: getFirstUtterance('QNA_MAIN'),
 										},
 									],
 								},
@@ -489,7 +489,7 @@ function buildMainMenuResponse(regionCode) {
 					{
 						label: '처음으로',
 						action: 'message',
-						messageText: FirstUtterance('MAIN'),
+						messageText: getFirstUtterance('MAIN'),
 					},
 				],
 			},
@@ -519,17 +519,17 @@ function buildTouristSpotsMenuResponse(regionCode) {
 								{
 									label: '문화유적/사찰',
 									action: 'message',
-									messageText: FirstUtterance('TOUR_CULTURE'),
+									messageText: getFirstUtterance('TOUR_CULTURE'),
 								},
 								{
 									label: '자연경관/산책명소',
 									action: 'message',
-									messageText: FirstUtterance('TOUR_NATURE'),
+									messageText: getFirstUtterance('TOUR_NATURE'),
 								},
 								{
 									label: '축제·체험·볼거리',
 									action: 'message',
-									messageText: FirstUtterance('TOUR_FESTIVAL'),
+									messageText: getFirstUtterance('TOUR_FESTIVAL'),
 								},
 							],
 						},
@@ -539,7 +539,7 @@ function buildTouristSpotsMenuResponse(regionCode) {
 					{
 						label: '처음으로',
 						action: 'message',
-						messageText: FirstUtterance('MAIN'),
+						messageText: getFirstUtterance('MAIN'),
 					},
 				],
 			},
@@ -627,12 +627,12 @@ function buildTouristSpotCarouselResponse(spots) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: FirstUtterance('MAIN'),
+					messageText: getFirstUtterance('MAIN'),
 				},
 				{
 					label: '다른 유형 보기',
 					action: 'message',
-					messageText: FirstUtterance('TOUR_MAIN'),
+					messageText: getFirstUtterance('TOUR_MAIN'),
 				},        
 			],
 		},
@@ -736,7 +736,7 @@ function buildTourCourseCarouseResponse(regionCode, courses) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: FirstUtterance('MAIN'),
+					messageText: getFirstUtterance('MAIN'),
 				},
 			],
 		},
@@ -766,27 +766,27 @@ function buildTransportInfoMenuResponse(regionCode) {
 					{
 						label: '처음으로',
 						action: 'message',
-						messageText: FirstUtterance('MAIN'),
+						messageText: getFirstUtterance('MAIN'),
 					},
 					{
 						label: '주차장',
 						action: 'message',
-						messageText: FirstUtterance('TRANS_PARKING'),
+						messageText: getFirstUtterance('TRANS_PARKING'),
 					},
 					{
 						label: '버스',
 						action: 'message',
-						messageText: FirstUtterance('TRANS_BUS'),
+						messageText: getFirstUtterance('TRANS_BUS'),
 					},
 					{
 						label: '관광안내소',
 						action: 'message',
-						messageText: FirstUtterance('TRANS_CENTER'),
+						messageText: getFirstUtterance('TRANS_CENTER'),
 					},
 					{
 						label: '이동동선',
 						action: 'message',
-						messageText: FirstUtterance('TRANS_ROUTE'),
+						messageText: getFirstUtterance('TRANS_ROUTE'),
 					},
 				],
 			},
@@ -864,12 +864,12 @@ function buildParkingCarouselResponse(spots) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: FirstUtterance('MAIN'),
+					messageText: getFirstUtterance('MAIN'),
 				},
 				{
 					label: '다른 유형 보기',
 					action: 'message',
-					messageText: FirstUtterance('TRANSPORT'),
+					messageText: getFirstUtterance('TRANSPORT'),
 				},        
 			],
 		},
@@ -893,22 +893,22 @@ function buildBusRouteMenuResponse(regionCode) {
 					{
 						label: '처음으로',
 						action: 'message',
-						messageText: FirstUtterance('MAIN'),
+						messageText: getFirstUtterance('MAIN'),
 					},
 					{
 						label: '간선',
 						action: 'message',
-						messageText: FirstUtterance('TRANS_BUS_EDGE'),
+						messageText: getFirstUtterance('TRANS_BUS_EDGE'),
 					},
 					{
 						label: '순환선',
 						action: 'message',
-						messageText: FirstUtterance('TRANS_BUS_LOOP'),
+						messageText: getFirstUtterance('TRANS_BUS_LOOP'),
 					},
 					{
 						label: '지선',
 						action: 'message',
-						messageText: FirstUtterance('TRANS_BUS_BRANCH'),
+						messageText: getFirstUtterance('TRANS_BUS_BRANCH'),
 					},
 				],
 			},
@@ -971,7 +971,7 @@ function buildBusRouteQuickReplies(routeType, routeNumbers) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: FirstUtterance('MAIN'),
+					messageText: getFirstUtterance('MAIN'),
 				},
 				...quickReplies,
 			],
@@ -1067,22 +1067,22 @@ function buildBusRouteDetailResponse(route) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: FirstUtterance('MAIN'),
+					messageText: getFirstUtterance('MAIN'),
 				},
 				{
 					label: '간선버스',
 					action: 'message',
-					messageText: FirstUtterance('TRANS_BUS_EDGE'),
+					messageText: getFirstUtterance('TRANS_BUS_EDGE'),
 				},
 				{
 					label: '순환버스',
 					action: 'message',
-					messageText: FirstUtterance('TRANS_BUS_LOOP'),
+					messageText: getFirstUtterance('TRANS_BUS_LOOP'),
 				},
 				{
 					label: '지선버스',
 					action: 'message',
-					messageText: FirstUtterance('TRANS_BUS_BRANCH'),
+					messageText: getFirstUtterance('TRANS_BUS_BRANCH'),
 				},
 			],
 		},
@@ -1108,22 +1108,22 @@ function buildTravelRouteMenuResponse(regionCode) {
 					{
 						label: '처음으로',
 						action: 'message',
-						messageText: FirstUtterance('MAIN'),
+						messageText: getFirstUtterance('MAIN'),
 					},
 					{
 						label: '테마형',
 						action: 'message',
-						messageText: FirstUtterance('TRANS_ROUTE_THEME'),
+						messageText: getFirstUtterance('TRANS_ROUTE_THEME'),
 					},
 					{
 						label: '출발지기준',
 						action: 'message',
-						messageText: FirstUtterance('TRANS_ROUTE_HUB'),
+						messageText: getFirstUtterance('TRANS_ROUTE_HUB'),
 					},
 					{
 						label: '코스형',
 						action: 'message',
-						messageText: FirstUtterance('TRANS_ROUTE_COURSE'),
+						messageText: getFirstUtterance('TRANS_ROUTE_COURSE'),
 					},
 				],
 			},
@@ -1221,22 +1221,22 @@ function buildTravelRouteListResponse(routes, routeType) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: FirstUtterance('MAIN'),
+					messageText: getFirstUtterance('MAIN'),
 				},
 				{
 					label: '테마형',
 					action: 'message',
-					messageText: FirstUtterance('TRANS_ROUTE_THEME'),
+					messageText: getFirstUtterance('TRANS_ROUTE_THEME'),
 				},
 				{
 					label: '출발지기준',
 					action: 'message',
-					messageText: FirstUtterance('TRANS_ROUTE_HUB'),
+					messageText: getFirstUtterance('TRANS_ROUTE_HUB'),
 				},
 				{
 					label: '코스형',
 					action: 'message',
-					messageText: FirstUtterance('TRANS_ROUTE_COURSE'),
+					messageText: getFirstUtterance('TRANS_ROUTE_COURSE'),
 				},
 			],
 		},
@@ -1302,7 +1302,7 @@ function getFaqCategoryMessageText(categoryCode) {
 		return '';
 	}
   
-	return FirstUtterance(info.menu);
+	return getFirstUtterance(info.menu);
 }
 
 // Webhook json - FAQ 카테고리 리스트
@@ -1342,7 +1342,7 @@ function buildFaqCategoryListResponse(categories) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: FirstUtterance('MAIN'),
+					messageText: getFirstUtterance('MAIN'),
 				},
 			],
 		},
@@ -1371,12 +1371,12 @@ function buildFaqListResponse(categoryCode, faqs) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: FirstUtterance('MAIN'),
+					messageText: getFirstUtterance('MAIN'),
 				},
 				{
 					label: '다른 유형의 질문',
 					action: 'message',
-					messageText: FirstUtterance('QNA_MAIN'),
+					messageText: getFirstUtterance('QNA_MAIN'),
 				},
 			],
 		};
@@ -1397,12 +1397,12 @@ function buildFaqListResponse(categoryCode, faqs) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: FirstUtterance('MAIN'),
+					messageText: getFirstUtterance('MAIN'),
 				},
 				{
 					label: '다른 유형의 질문',
 					action: 'message',
-					messageText: FirstUtterance('QNA_MAIN'),
+					messageText: getFirstUtterance('QNA_MAIN'),
 				},
 			],
 		},
@@ -1453,12 +1453,12 @@ function buildFaqSearchResponse(keyword, faqs) {
 					{
 						label: '처음으로',
 						action: 'message',
-						messageText: FirstUtterance('MAIN'),
+						messageText: getFirstUtterance('MAIN'),
 					},
 					{
 						label: '자주 묻는 질문',
 						action: 'message',
-						messageText: FirstUtterance('QNA_MAIN'),
+						messageText: getFirstUtterance('QNA_MAIN'),
 					},
 				],
 			},
@@ -1487,12 +1487,12 @@ function buildFaqSearchResponse(keyword, faqs) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: FirstUtterance('MAIN'),
+					messageText: getFirstUtterance('MAIN'),
 				},
 				{
 					label: '다른 질문 하기',
 					action: 'message',
-					messageText: FirstUtterance('QNA_SEARCH'),
+					messageText: getFirstUtterance('QNA_SEARCH'),
 				},
 			],
 		};
@@ -1513,12 +1513,12 @@ function buildFaqSearchResponse(keyword, faqs) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: FirstUtterance('MAIN'),
+					messageText: getFirstUtterance('MAIN'),
 				},
 				{
 					label: '자주 묻는 질문',
 					action: 'message',
-					messageText: FirstUtterance('QNA_MAIN'),
+					messageText: getFirstUtterance('QNA_MAIN'),
 				},
 			],
 		},
