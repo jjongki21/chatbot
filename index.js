@@ -1277,7 +1277,7 @@ async function getFaqsByCategory(regionCode, categoryCode) {
 			ORDER BY sort_order ASC, id ASC
 	`;
 
-	const values = [categoryCode];
+	const values = [regionCode, categoryCode];
 	const result = await pool.query({ text, values });
 
 	return result.rows;
