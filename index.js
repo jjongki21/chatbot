@@ -6,6 +6,7 @@ const { Pool } = require('pg');
 //Render Web service URL
 const defURL = 'https://yktout-chatbot-web.onrender.com';
 const defImgURL = `${defURL}/images/`;
+
 const defImg = `${defImgURL}kyeongsan_m_1_info.png`;
 
 const app = express();
