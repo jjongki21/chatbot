@@ -469,15 +469,15 @@ function buildMainMenuResponse(regionCode) {
 // Menu - 관광지목록
 function buildTouristSpotsMenuResponse(regionCode) {
 	//if (regionCode === 'gyeongsan') {
-		const text = '경산의 명소들을 소개해드릴게요!\n원하시는 관광지 유형을 선택해 주세요 👇';
-
 		return {
 			version: '2.0',
 			template: {
 				outputs: [
 					{
 						basicCard: {
-							description: text,
+							title: '관광지 목록',
+							description: '경산의 명소들을 소개해드릴게요!\n원하시는 관광지 유형을 선택해 주세요 👇',
+							thumbnail: { imageUrl: `${defImgURL}tourist_spots.png`, },
 							buttons: [
 								{
 									label: '문화유적/사찰',
@@ -842,14 +842,14 @@ function buildParkingCarouselResponse(spots) {
 // Menu - 버스노선
 function buildBusRouteMenuResponse(regionCode) {
 	//if (regionCode === 'gyeongsan') {
-		const text = '경산 시내버스 정보를 안내해 드릴게요 🚌\n원하시는 노선 유형을 선택해 주세요 👇';
-		
 		return {
 			version: '2.0',
 			template: {
 				outputs: [
 					{
-						simpleText: { text, },
+						simpleText: { 
+							text: '경산 시내버스 정보를 안내해 드릴게요 🚌\n원하시는 노선 유형을 선택해 주세요 👇', 
+						},
 					},
 				],
 				quickReplies: [
@@ -1045,16 +1045,16 @@ function buildBusRouteDetailResponse(route) {
 // Menu - 이동동선
 function buildTravelRouteMenuResponse(regionCode) {
 	//if (regionCode === 'gyeongsan') {
-		const text = '🧭 경산 여행 어디부터 갈지 고민되시나요?\n아래 이동 동선 유형 중 하나를 선택해 보세요!\n'
-					+ '원하는 스타일에 맞춰 추천 루트를 안내해 드릴게요 😊\n\n'
-					+ '📌 테마형 이동 동선\n🚉 출발지 기준 이동\n🗺 반나절·1일 코스형';
-		
 		return {
 			version: '2.0',
 			template: {
 				outputs: [
 					{
-						simpleText: { text, },
+						simpleText: { 
+							text: '🧭 경산 여행 어디부터 갈지 고민되시나요?\n아래 이동 동선 유형 중 하나를 선택해 보세요!\n'
+								+ '원하는 스타일에 맞춰 추천 루트를 안내해 드릴게요 😊\n\n'
+								+ '📌 테마형 이동 동선\n🚉 출발지 기준 이동\n🗺 반나절·1일 코스형', 
+						},
 					},
 				],
 				quickReplies: [
@@ -1243,30 +1243,23 @@ function buildFaqCategoryListResponse(categories) {
 		return buildSimpleTextResponse('등록된 자주 묻는 질문 카테고리가 아직 없어요 😢');
 	}
 
-	const items = categories.map((c) => {
-		const label = getFaqCategoryLabel(c.category_code);
-
-		return {
-			title: label,
-			description: `해당 유형의 자주 묻는 질문을 확인할 수 있어요.`,
-			buttons: [
-				{
-					label: `${label} 보기`,
-					action: 'message',
-					messageText: getFaqCategoryMessageText(c.category_code),
-				},
-			],
-		};
-	});
+	const quickReplies = categories.map((c) => ({
+		label: getFaqCategoryLabel(c.category_code) + ` 보기`,
+		action: 'message',
+		messageText: getFaqCategoryMessageText(c.category_code),
+	}));
 
 	return {
 		version: '2.0',
 		template: {
 			outputs: [
 				{
-					carousel: {
-						type: 'basicCard',
-						items,
+					simpleText: { 
+						text: normalizeText(
+							'❓ 자주 묻는 질문을 모아봤어요!\n'
+							+ '여행 중 궁금하셨던 정보들을\n'
+							+ '빠르고 쉽게 확인해 보세요 😊\n'
+							+ '원하시는 항목을 아래에서 골라주세요 👇'),
 					},
 				},
 			],
@@ -1276,6 +1269,7 @@ function buildFaqCategoryListResponse(categories) {
 					action: 'message',
 					messageText: getFirstUtterance('MAIN'),
 				},
+				...quickReplies,
 			],
 		},
 	};
