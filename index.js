@@ -680,8 +680,8 @@ function buildTourCourseCarouseResponse(regionCode, courses) {
 		return lines.join('\n');
 	});
 	
-	const output = [];
-	output.push(buildCityTourResponse(regionCode));
+	const outputs = [];
+	outputs.push(buildCityTourResponse(regionCode));
 	
 	texts.forEach((text)=>{
 		outputs.push({
