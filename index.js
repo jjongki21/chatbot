@@ -848,7 +848,7 @@ function buildBusRouteMenuResponse(regionCode) {
 				outputs: [
 					{
 						simpleText: { 
-							text: '경산 시내버스 정보를 안내해 드릴게요 🚌\n원하시는 노선 유형을 선택해 주세요 👇', 
+							'경산 시내버스 정보를 안내해 드릴게요 🚌\n원하시는 노선 유형을 선택해 주세요 👇', 
 						},
 					},
 				],
@@ -916,7 +916,7 @@ function buildBusRouteQuickReplies(routeType, routeNumbers) {
 			outputs: [
 				{
 					simpleText: {
-						text: `🚌 ${typeLabel} 노선을 선택해 주세요.\n👉 번호를 누르시면 상세 정보를 안내해 드릴게요.😊`,
+						`🚌 ${typeLabel} 노선을 선택해 주세요.\n👉 번호를 누르시면 상세 정보를 안내해 드릴게요.😊`,
 					},
 				},
 			],
@@ -1051,9 +1051,9 @@ function buildTravelRouteMenuResponse(regionCode) {
 				outputs: [
 					{
 						simpleText: { 
-							text: '🧭 경산 여행 어디부터 갈지 고민되시나요?\n아래 이동 동선 유형 중 하나를 선택해 보세요!\n'
-								+ '원하는 스타일에 맞춰 추천 루트를 안내해 드릴게요 😊\n\n'
-								+ '📌 테마형 이동 동선\n🚉 출발지 기준 이동\n🗺 반나절·1일 코스형', 
+							'🧭 경산 여행 어디부터 갈지 고민되시나요? 아래 이동 동선 유형 중 하나를 선택해 보세요!\n'
+							+ '원하는 스타일에 맞춰 추천 루트를 안내해 드릴게요 😊\n\n'
+							+ '📌 테마형 이동 동선\n🚉 출발지 기준 이동\n🗺 반나절·1일 코스형', 
 						},
 					},
 				],
@@ -1121,6 +1121,7 @@ function buildTravelRouteListResponse(routes, routeType) {
 	const items = routes.slice(0, 10).map((r) => {
 		const lines = [];
 
+		if (r.title) lines.push(r.title);
 		if (r.description)	lines.push(r.description);
 	
 		if (Array.isArray(r.items) && r.items.length > 0) {
@@ -1132,20 +1133,11 @@ function buildTravelRouteListResponse(routes, routeType) {
 		if (r.transport_type) 	lines.push(`🚍 이동수단: ${r.transport_type}`);
 		const description = lines.join('\n');
 
-		const buttons = [];
-
-		if (r.map_url) {
-			buttons.push({
-				label: '지도보기',
-				action: 'webLink',
-				webLinkUrl: r.map_url,
-			});
-		}
-
 		return {
-			title: r.title,
-			description,
-			buttons,
+			simpleText:
+			{
+				text: description,
+			}
 		};
 	});
 
@@ -1154,10 +1146,7 @@ function buildTravelRouteListResponse(routes, routeType) {
 		template: {
 			outputs: [
 				{
-					carousel: {
-						type: 'basicCard',
-						items,
-					},
+					items,
 				},
 			],
 			quickReplies: [
@@ -1255,7 +1244,7 @@ function buildFaqCategoryListResponse(categories) {
 			outputs: [
 				{
 					simpleText: { 
-						text: normalizeText(
+						normalizeText(
 							'❓ 자주 묻는 질문을 모아봤어요!\n'
 							+ '여행 중 궁금하셨던 정보들을\n'
 							+ '빠르고 쉽게 확인해 보세요 😊\n'
