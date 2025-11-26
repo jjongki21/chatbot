@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const path = require('path');
 const { Pool } = require('pg');
 
+//Render Web service URL
 const defURL = 'https://yktout-chatbot-web.onrender.com';
 const defImg = `${defURL}/images/kyeongsan_m_1_info.png`;
 
@@ -20,7 +21,7 @@ const pool = new Pool({
 });
 
 app.get('/', (req, res) => {
-  res.send('Kakao Chatbot is running.');
+	res.send('Kakao Chatbot is running.');
 });
 
 
@@ -36,6 +37,9 @@ class BlockInfo {
 		this.utterances = utterances;   // 사용자 발화 배열
 	}
 }
+
+//  		| index.js에서 사용할 대행 문구 | 오픈빌더의 블록명					| DB에서 사용할 카테고리명	| 오픈빌더의 블록에서 사용중인 사용자 발화 리스트			|
+//			| 변경시 index.js 수정 필요	| 오픈빌더에 맞춰 수정					| 변경시 DB 수정 필요		| 오픈빌더에 맞춰 수정									|
 
 const BlockList = [
 	new BlockInfo('MAIN',				'main', 							'MAIN', 				['처음으로', '시작', '처음']),
@@ -56,22 +60,24 @@ const BlockList = [
 	new BlockInfo('TRANS_BUS_LOOP',		'transport_info_list_bus_loop', 	'LOOP', 				['순환버스', '순환', '순환버스 알려줘']),
 	new BlockInfo('TRANS_BUS_BRANCH',	'transport_info_list_bus_branch', 	'BRANCH', 				['지선버스', '지선', '지선버스 알려줘']),
 	new BlockInfo('TRANS_BUS_DETAIL',	'transport_info_list_bus_detail', 	'BUS_DETAIL', 			['']),
-	new BlockInfo('QNA_MAIN',			'qna', 								'QNA_MAIN', 			['자주 묻는 질문', '질문']),
+	new BlockInfo('QNA_MAIN',			'qna_list', 						'QNA_MAIN', 			['자주 묻는 질문']),
+	new BlockInfo('QNA_TOUR',			'qna_list_tour', 					'TOUR_GUIDE', 			['관광지 질문']),
+	new BlockInfo('QNA_TRANSPORT',		'qna_list_transport', 				'TRANSPORT', 			['교통편의 질문']),
+	new BlockInfo('QNA_PROGRAM',		'qna_list_program', 				'TOUR_PROGRAM', 		['투어 프로그램 질문']),
+	new BlockInfo('QNA_FESTIVAL',		'qna_list_festival', 				'FESTIVAL', 			['축제행사 질문']),
+	new BlockInfo('QNA_SEARCH',			'qna_list_search', 					'SEARCH', 				['질문할게 있어']),
 ];
 
 function getBlockByName(blockName) {
 	return BlockList.find(b => b.blockName === blockName) || null;
 }
 
-function getBlockByMenu(menuName) {
-	return BlockList.find(b => b.menu === menuName) || null;
-}
-
+// 블록의 첫번째 사용자발화 가져오기 (사용자발화로 블록 이동하기 위한 용도)
 function FirstUtterance(menuName) {
-	const info = getBlockByMenu(menuName);
+	const info = BlockList.find(b => b.menu === menuName) || null;
 	
 	if (!info || !Array.isArray(info.utterances) || info.utterances.length === 0) {
-		console.warn('[safeFirstUtterance] fallback used for', menuName);
+		console.warn('Fallback used for', menuName);
 		return '';
 	}
 	return String(info.utterances[0]);
@@ -209,24 +215,56 @@ app.post('/kakao/webhook', async (req, res) => {
 				kakaoResponse = buildTravelRouteListResponse(routes, 'COURSE');
 				break;
 			}
-			
-			
-			
-				  case 'QNA_MAIN': {
-					const faqCategoryCode = getParam(params, 'category_code', null);
-					console.log('[FAQ_목록] region:', regionCode, 'category:', faqCategoryCode);
+						
+			// ※ 자주 하는 질문
+			case 'QNA_MAIN': {
+				kakaoResponse = buildFaqCategoryListResponse(categories);
+				break;
+			}
+			//    └ 관광지 질문
+			case 'QNA_TOUR': {
+				const faqs = await getFaqsByCategory('TOUR_GUIDE');
+				kakaoResponse = buildFaqListResponse('TOUR_GUIDE', faqs);
+				break;
+			}
+			//    └ 교통편의 질문
+			case 'QNA_TRANSPORT': {
+				const faqs = await getFaqsByCategory('TRANSPORT');
+				kakaoResponse = buildFaqListResponse('TRANSPORT', faqs);
+				break;
+			}
+			//    └ 투어 프로그램 질문
+			case 'QNA_PROGRAM': {
+				const faqs = await getFaqsByCategory('TOUR_PROGRAM');
+				kakaoResponse = buildFaqListResponse('TOUR_PROGRAM', faqs);
+				break;
+			}
+			//    └ 투어 프로그램 질문
+			case 'QNA_FESTIVAL': {
+				const faqs = await getFaqsByCategory('FESTIVAL');
+				kakaoResponse = buildFaqListResponse('FESTIVAL', faqs);
+				break;
+			}
+			//    └ 커스텀 질문
+			case 'QNA_SEARCH': {
+				const userText = body.userRequest && body.userRequest.utterance
+								? body.userRequest.utterance.trim() : '';
+				console.log('[qna_search] utterance =', userText);
 
-					const faqs = await getFaqs(regionCode, faqCategoryCode);
-					console.log('faqs.length =', faqs.length);
-
-					kakaoResponse = buildFaqListResponse(faqs);
+				if (!userText) {
+					kakaoResponse = buildSimpleTextResponse('궁금한 내용을 자연스럽게 입력해 주세요 😊\n예) 갓바위 주차장 알려줘');
 					break;
-				  }
+				}
+
+				const faqs = await searchFaqs(regionCode, userText);
+				kakaoResponse = buildFaqSearchResponse(userText, faqs);
+				break;
+			}
 
 			default: {
 				console.log('알 수 없는 intentName:', intentName);
 				kakaoResponse = buildSimpleTextResponse(
-					'요청하신 내용을 이해하기가 조금 어려워요 😅\n메뉴에서 관광지 안내, 시티투어, 교통정보, FAQ 중 하나를 다시 선택해 주세요.'
+					'요청하신 내용을 이해하기가 조금 어려워요 😅\n메뉴를 다시 선택해 주세요.'
 				);
 			}
 		}
@@ -365,7 +403,10 @@ const normalizeText = (text) => text.replace(/\\n/g, "\n");
  
  // Menu - 메인메뉴
 function buildMainMenuResponse(regionCode) {
-	//if (regionCode === 'gyeongsan') {
+	// 경산과 영주 구성을 다르게 하려면
+	// 동일한 Git을 사용하고 오픈빌더 블록에 일반 파라미터에 "region_code"에 "yeongju"를 입력 후
+	// 이 함수 아래에 else if (region_code === "yeongju")로 처리하면 됨
+	//if (regionCode === 'gyeongsan') {		
 		return {
 			version: '2.0',
 			template: {
@@ -385,6 +426,9 @@ function buildMainMenuResponse(regionCode) {
 										{
 											label: '관광지 보러가기',
 											action: 'message',
+											// message 액션 : 대화창에 사용자 방향에서 지정 메시지를 던지도록 처리
+											// 블록에 지정된 사용자 발화로 메시지 던지면 (ex."처음으로")
+											// 그럼 해당 블록으로 이동 (ex. "main"블록)
 											messageText: FirstUtterance('TOUR_MAIN'),
 										},
 									],
@@ -699,7 +743,7 @@ function buildTourCourseCarouseResponse(regionCode, courses) {
 
 
 /* ===============================
- * 교통 및 편의정보 목록
+ * 교통 및 편의정보
  * =============================== */
  
 // Menu - 교통편의정보
@@ -1174,7 +1218,7 @@ function buildTravelRouteListResponse(routes, routeType) {
 				{
 					label: '처음으로',
 					action: 'message',
-					messageText: '처음으로',
+					messageText: FirstUtterance('MAIN'),
 				},
 				{
 					label: '테마형',
@@ -1198,87 +1242,285 @@ function buildTravelRouteListResponse(routes, routeType) {
 
 
 
+/* ===============================
+ * 자주 묻는 질문
+ * =============================== */
 
+// DB - FAQ 카테고리 목록
+async function getFaqCategories(regionCode) {
+	const text = `
+		SELECT region_code, category_code, title, sort_order
+			FROM faq_categories
+			WHERE region_code = $1
+			  AND is_active = TRUE
+			ORDER BY sort_order ASC, id ASC
+	`;
 
+	const values = [regionCode];
+	const result = await pool.query({ text, values });
 
-
-
-
-
-
-
-
-
-
-
-
-// FAQ 목록 조회
-async function getFaqs(regionCode, categoryCode) {
-  // category_code가 없으면 지역 공통 FAQ 전체
-  let query = `
-    SELECT id, question, answer
-    FROM faqs
-    WHERE is_active = TRUE
-      AND (region_code = $1 OR region_code IS NULL)
-  `;
-  const values = [regionCode];
-
-  if (categoryCode) {
-    query += ` AND category_code = $2`;
-    values.push(categoryCode);
-  }
-
-  query += ` ORDER BY sort_order NULLS LAST, id LIMIT 5;`;
-
-  const result = await pool.query(query, values);
-  return result.rows;
+	return result.rows;
 }
 
-// FAQ 응답
-function buildFaqListResponse(faqs) {
-  if (!faqs || faqs.length === 0) {
-    return buildSimpleTextResponse(
-      '등록된 자주 묻는 질문이 아직 없어요 😅\n' +
-      '궁금한 내용을 직접 입력해 주세요.'
-    );
-  }
+// DB - 카테고리별 FAQ 목록
+async function getFaqsByCategory(regionCode, categoryCode) {
+	const text = `
+		SELECT id, category_code, question, answer, sort_order
+			FROM faqs
+			WHERE region_code = $1
+			  AND category_code = $2
+			  AND is_active = TRUE
+			ORDER BY sort_order ASC, id ASC
+	`;
 
-  let text = '🙋 자주 묻는 질문\n\n';
-  faqs.forEach((f, idx) => {
-    text += `${idx + 1}. Q. ${f.question}\n`;
-    text += `   A. ${f.answer}\n\n`;
-  });
+	const values = [categoryCode];
+	const result = await pool.query({ text, values });
 
-  return {
-    version: '2.0',
-    template: {
-      outputs: [
-        {
-          simpleText: { text },
-        },
-      ],
-      quickReplies: [
-        {
-          label: '관광지 안내',
-          action: 'message',
-          messageText: '관광지 안내',
-        },
-        {
-          label: '시티투어',
-          action: 'message',
-          messageText: '시티투어 안내',
-        },
-        {
-          label: '교통 정보',
-          action: 'message',
-          messageText: '교통 정보',
-        },
-      ],
-    },
-  };
+	return result.rows;
 }
 
+// Enum to Label - 질문 카테고리별 명칭
+function getFaqCategoryLabel(categoryCode) {
+	switch (categoryCode) {
+		case 'TOUR_GUIDE':		return '관광 정보 안내';
+		case 'TRANSPORT':		return '교통 및 주차 안내';
+		case 'TOUR_PROGRAM':	return '시티투어 · 투어 프로그램 안내';
+		case 'FESTIVAL':		return '축제 · 행사 안내';
+		default:				return categoryCode;
+	}
+}
 
+// String - F&A 카테고리와 블록 매핑
+function getFaqCategoryMessageText(categoryCode) {
+	const info = BlockList.find(b => b.category === categoryCode) || null;
+	
+	if (!info || !info.blockName) {
+		console.warn('Fallback used for', categoryCode);
+		return '';
+	}
+  
+	return info.blockName;
+}
 
+// Webhook json - FAQ 카테고리 리스트
+function buildFaqCategoryListResponse(categories) {
+	if (!categories || categories.length === 0) {
+		return buildSimpleTextResponse('등록된 자주 묻는 질문 카테고리가 아직 없어요 😢');
+	}
 
+	const items = categories.map((c) => {
+		const label = getFaqCategoryLabel(c.category_code);
 
+		return {
+			title: label,
+			description: `해당 유형의 자주 묻는 질문을 확인할 수 있어요.`,
+			thumbnail: {
+				imageUrl: '${defURL}/images/kyeongsan_m_4_faq.png',
+			},
+			buttons: [
+				{
+					label: `${label} 보기`,
+					action: 'message',
+					messageText: getFaqCategoryMessageText(c.category_code),
+				},
+			],
+		};
+	});
+
+	return {
+		version: '2.0',
+		template: {
+			outputs: [
+				{
+					carousel: {
+						type: 'basicCard',
+						items,
+					},
+				},
+			],
+			quickReplies: [
+				{
+					label: '처음으로',
+					action: 'message',
+					messageText: FirstUtterance('MAIN'),
+				},
+			],
+		},
+	};
+}
+
+// Webhook json - FAQ 답변 목록
+function buildFaqListResponse(categoryCode, faqs) {
+	const label = getFaqCategoryLabel(categoryCode);
+
+	if (!faqs || faqs.length === 0) {
+		return buildSimpleTextResponse(`${label}에 대한 자주 묻는 질문이 아직 준비되지 않았어요 😢`);
+	}
+
+	const items = faqs.slice(0, 10).map((f) => {
+		const question = f.question || '질문';
+		const answer = f.answer && f.answer.trim().length > 0 ? f.answer : '답변 준비 중입니다. 조금만 기다려 주세요.';
+
+		return {
+			title: question,
+			description: answer,
+			thumbnail: {
+				mageUrl: '${defURL}/images/kyeongsan_m_4_faq.png',
+			},
+			buttons: [
+				{
+					label: '처음으로',
+					action: 'message',
+					messageText: FirstUtterance('MAIN'),
+				},
+				{
+					label: '다른 유형의 질문',
+					action: 'message',
+					messageText: FirstUtterance('QNA_MAIN'),
+				},
+			],
+		};
+	});
+
+	return {
+		version: '2.0',
+		template: {
+			outputs: [
+				{
+					carousel: {
+						type: 'basicCard',
+						items,
+					},
+				},
+			],
+			quickReplies: [
+				{
+					label: '처음으로',
+					action: 'message',
+					messageText: FirstUtterance('MAIN'),
+				},
+				{
+					label: '다른 유형의 질문',
+					action: 'message',
+					messageText: FirstUtterance('QNA_MAIN'),
+				},
+			],
+		},
+	};
+}
+
+// DB - 키워드별 FAQ 목록
+async function searchFaqs(regionCode, keyword, limit = 5) {
+	const text = `
+		SELECT f.id, f.category_code, f.question, f.answer, f.sort_order, c.title AS category_title
+			FROM faqs f
+				JOIN faq_categories c
+				  ON f.category_code = c.category_code
+			WHERE c.region_code = $1
+			  AND f.is_active = TRUE
+			  AND c.is_active = TRUE
+			  AND (
+					f.question ILIKE '%' || $2 || '%'
+					OR f.answer ILIKE '%' || $2 || '%'
+				  )
+			ORDER BY f.sort_order ASC, f.id ASC
+			LIMIT $3;
+	`;
+
+	const values = [regionCode, keyword, limit];
+	const result = await pool.query({ text, values });
+	
+	return result.rows;
+}
+
+// Webhook json - 키워드별 FAQ 답변 목록
+function buildFaqSearchResponse(keyword, faqs) {
+	if (!faqs || faqs.length === 0) {
+		return {
+			version: '2.0',
+			template: {
+				outputs: [
+					{
+						simpleText: {
+							text:
+								`검색어 "${keyword}" 에 해당하는 자주 묻는 질문을 찾지 못했어요 😢\n` +
+								`표현을 조금 바꾸어 다시 질문해 보시거나,\n` +
+								`"자주 묻는 질문" 버튼을 눌러 카테고리별로 확인해 주세요.`,
+						},
+					},
+				],
+				quickReplies: [
+					{
+						label: '처음으로',
+						action: 'message',
+						messageText: FirstUtterance('MAIN'),
+					},
+					{
+						label: '자주 묻는 질문',
+						action: 'message',
+						messageText: FirstUtterance('QNA_MAIN'),
+					},
+				],
+			},
+		};
+	}
+
+	const items = faqs.map((f) => {
+		const question = f.question || '질문';
+		const answer = f.answer && f.answer.trim().length > 0
+			? f.answer : '답변 준비 중입니다. 조금만 기다려 주세요.';
+
+		const categoryTitle = f.category_title || f.category_code || '';
+
+		const descLines = [];
+		if (categoryTitle) descLines.push(`📂 카테고리: ${categoryTitle}`);
+		descLines.push('');
+		descLines.push(answer);
+
+		return {
+			title: question,
+			description: descLines.join('\n'),
+			thumbnail: {
+				mageUrl: '${defURL}/images/kyeongsan_m_4_faq.png',
+			},
+			buttons: [
+				{
+					label: '처음으로',
+					action: 'message',
+					messageText: FirstUtterance('MAIN'),
+				},
+				{
+					label: '다른 질문 하기',
+					action: 'message',
+					messageText: FirstUtterance('QNA_SEARCH'),
+				},
+			],
+		};
+	});
+
+	return {
+		version: '2.0',
+		template: {
+			outputs: [
+				{
+					carousel: {
+						type: 'basicCard',
+						items,
+					},
+				},
+			],
+			quickReplies: [
+				{
+					label: '처음으로',
+					action: 'message',
+					messageText: FirstUtterance('MAIN'),
+				},
+				{
+					label: '자주 묻는 질문',
+					action: 'message',
+					messageText: FirstUtterance('QNA_MAIN'),
+				},
+			],
+		},
+	};
+}
