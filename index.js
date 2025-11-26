@@ -63,11 +63,11 @@ const BlockList = [
 	new BlockInfo('TRANS_BUS_BRANCH',	'transport_info_list_bus_branch', 	'BRANCH', 				['지선버스', '지선', '지선버스 알려줘']),
 	new BlockInfo('TRANS_BUS_DETAIL',	'transport_info_list_bus_detail', 	'BUS_DETAIL', 			['']),
 	new BlockInfo('QNA_MAIN',			'qna_list', 						'QNA_MAIN', 			['자주 묻는 질문']),
-	new BlockInfo('QNA_TOUR',			'qna_list_tour', 					'TOUR_GUIDE', 			['관광지 질문']),
-	new BlockInfo('QNA_TRANSPORT',		'qna_list_transport', 				'TRANSPORT', 			['교통편의 질문']),
-	new BlockInfo('QNA_PROGRAM',		'qna_list_program', 				'TOUR_PROGRAM', 		['투어 프로그램 질문']),
-	new BlockInfo('QNA_FESTIVAL',		'qna_list_festival', 				'FESTIVAL', 			['축제행사 질문']),
-	new BlockInfo('QNA_SEARCH',			'qna_list_search', 					'SEARCH', 				['질문할게 있어']),	// 질문 검색인데 귀찮아서 뺌
+	new BlockInfo('QNA_TOUR',			'qna_list_tour', 					'QNA_TOUR', 			['관광지 질문']),
+	new BlockInfo('QNA_TRANSPORT',		'qna_list_transport', 				'QNA_TRANSPORT', 		['교통편의 질문']),
+	new BlockInfo('QNA_PROGRAM',		'qna_list_program', 				'QNA_PROGRAM', 			['투어 프로그램 질문']),
+	new BlockInfo('QNA_FESTIVAL',		'qna_list_festival', 				'QNA_FESTIVAL', 		['축제행사 질문']),
+	new BlockInfo('QNA_SEARCH',			'qna_list_search', 					'QNA_SEARCH', 			['질문할게 있어']),	// 질문 검색인데 귀찮아서 뺌
 ];
 
 function getBlockByName(blockName) {
