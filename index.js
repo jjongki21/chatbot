@@ -227,25 +227,25 @@ app.post('/kakao/webhook', async (req, res) => {
 			//    └ 관광지 질문
 			case 'QNA_TOUR': {
 				console.log('QNA_TOUR', block.category);
-				const faqs = await getFaqsByCategory(block.category);
+				const faqs = await getFaqsByCategory(regionCode, block.category);
 				kakaoResponse = buildFaqListResponse(block.category, faqs);
 				break;
 			}
 			//    └ 교통편의 질문
 			case 'QNA_TRANSPORT': {
-				const faqs = await getFaqsByCategory(block.category);
+				const faqs = await getFaqsByCategory(regionCode, block.category);
 				kakaoResponse = buildFaqListResponse(block.category, faqs);
 				break;
 			}
 			//    └ 투어 프로그램 질문
 			case 'QNA_PROGRAM': {
-				const faqs = await getFaqsByCategory(block.category);
+				const faqs = await getFaqsByCategory(regionCode, block.category);
 				kakaoResponse = buildFaqListResponse(block.category, faqs);
 				break;
 			}
 			//    └ 투어 프로그램 질문
 			case 'QNA_FESTIVAL': {
-				const faqs = await getFaqsByCategory(block.category);
+				const faqs = await getFaqsByCategory(regionCode, block.category);
 				kakaoResponse = buildFaqListResponse(block.category, faqs);
 				break;
 			}
