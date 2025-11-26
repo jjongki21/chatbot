@@ -665,6 +665,9 @@ function buildTourCourseCarouseResponse(regionCode, courses) {
 		);
 	}
 	
+	const outputs = [];
+	outputs.push(buildCityTourResponse(regionCode));
+	
 	const texts = courses.slice(0, 10).map((c) => {
 		const lines = [];
 		
@@ -680,16 +683,13 @@ function buildTourCourseCarouseResponse(regionCode, courses) {
 		return lines.join('\n');
 	});
 	
-	const outputs = [];
-	outputs.push(buildCityTourResponse(regionCode));
-	
-	texts.forEach((text)=>{
-		console.log(text);
+	if (texts.length > 0) {
+		const mergedText = texts.join('\n\n────────────\n\n');
 		outputs.push({
-			simpleText: { text },
+			simpleText: { text: mergedText },
 		});
-	});
-
+	}
+	
 	return {
 		version: '2.0',
 		template: {
