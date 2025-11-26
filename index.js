@@ -1132,7 +1132,7 @@ function buildTravelRouteListResponse(routes, routeType) {
 		if (r.total_time) 		lines.push(`🕒 소요시간: ${r.total_time}`);
 		if (r.transport_type) 	lines.push(`🚍 이동수단: ${r.transport_type}`);
 		
-		lines.join('\n');
+		return lines.join('\n');
 	});
 
 	return {
