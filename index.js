@@ -848,7 +848,7 @@ function buildBusRouteMenuResponse(regionCode) {
 				outputs: [
 					{
 						simpleText: { 
-							'경산 시내버스 정보를 안내해 드릴게요 🚌\n원하시는 노선 유형을 선택해 주세요 👇', 
+							text: '경산 시내버스 정보를 안내해 드릴게요 🚌\n원하시는 노선 유형을 선택해 주세요 👇', 
 						},
 					},
 				],
@@ -916,7 +916,7 @@ function buildBusRouteQuickReplies(routeType, routeNumbers) {
 			outputs: [
 				{
 					simpleText: {
-						`🚌 ${typeLabel} 노선을 선택해 주세요.\n👉 번호를 누르시면 상세 정보를 안내해 드릴게요.😊`,
+						text: `🚌 ${typeLabel} 노선을 선택해 주세요.\n👉 번호를 누르시면 상세 정보를 안내해 드릴게요.😊`,
 					},
 				},
 			],
@@ -1051,9 +1051,9 @@ function buildTravelRouteMenuResponse(regionCode) {
 				outputs: [
 					{
 						simpleText: { 
-							'🧭 경산 여행 어디부터 갈지 고민되시나요? 아래 이동 동선 유형 중 하나를 선택해 보세요!\n'
-							+ '원하는 스타일에 맞춰 추천 루트를 안내해 드릴게요 😊\n\n'
-							+ '📌 테마형 이동 동선\n🚉 출발지 기준 이동\n🗺 반나절·1일 코스형', 
+							text: '🧭 경산 여행 어디부터 갈지 고민되시나요? 아래 이동 동선 유형 중 하나를 선택해 보세요!\n'
+								+ '원하는 스타일에 맞춰 추천 루트를 안내해 드릴게요 😊\n\n'
+								+ '📌 테마형 이동 동선\n🚉 출발지 기준 이동\n🗺 반나절·1일 코스형', 
 						},
 					},
 				],
@@ -1244,11 +1244,11 @@ function buildFaqCategoryListResponse(categories) {
 			outputs: [
 				{
 					simpleText: { 
-						normalizeText(
-							'❓ 자주 묻는 질문을 모아봤어요!\n'
-							+ '여행 중 궁금하셨던 정보들을\n'
-							+ '빠르고 쉽게 확인해 보세요 😊\n'
-							+ '원하시는 항목을 아래에서 골라주세요 👇'),
+						text: normalizeText(
+								'❓ 자주 묻는 질문을 모아봤어요!\n'
+								+ '여행 중 궁금하셨던 정보들을\n'
+								+ '빠르고 쉽게 확인해 보세요 😊\n'
+								+ '원하시는 항목을 아래에서 골라주세요 👇'),
 					},
 				},
 			],
