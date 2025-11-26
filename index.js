@@ -683,19 +683,11 @@ function buildTourCourseCarouseResponse(regionCode, courses) {
 	return {
 		version: '2.0',
 		template: {
-			outputs: texts.map((text) => ({
-				simpleText: { text },
-			})),
-			
-			
 			outputs: [
 				buildCityTourResponse(regionCode),
-				{
-					carousel: {
-						type: 'basicCard',
-						items,
-					},
-				},
+				texts.map((text) => ({
+					simpleText: { text },
+				})),
 			],
 			quickReplies: [
 				{
