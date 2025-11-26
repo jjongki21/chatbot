@@ -684,6 +684,7 @@ function buildTourCourseCarouseResponse(regionCode, courses) {
 	outputs.push(buildCityTourResponse(regionCode));
 	
 	texts.forEach((text)=>{
+		console.log(text);
 		outputs.push({
 			simpleText: { text },
 		});
