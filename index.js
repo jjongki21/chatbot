@@ -1375,14 +1375,6 @@ function buildFaqListResponse(categoryCode, faqs) {
 			
 			texts.push(description);
 		}
-		
-		return {
-			title: question,
-			description: answer,
-			thumbnail: {
-				mageUrl: `${defImgURL}kyeongsan_m_4_faq.png`,
-			},
-		};
 	});
 	
 	const text = texts.join('\n');
