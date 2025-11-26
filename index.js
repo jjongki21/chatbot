@@ -5,7 +5,8 @@ const { Pool } = require('pg');
 
 //Render Web service URL
 const defURL = 'https://yktout-chatbot-web.onrender.com';
-const defImg = `${defURL}/images/kyeongsan_m_1_info.png`;
+const defImgURL = `${defURL}/images/`;
+const defImg = `${defImgURL}kyeongsan_m_1_info.png`;
 
 const app = express();
 
@@ -421,7 +422,7 @@ function buildMainMenuResponse(regionCode) {
 									title: '관광지 안내',
 									description: '문화유적·자연명소·축제 정보를 한눈에!',
 									thumbnail: {
-										imageUrl: `${defURL}/images/kyeongsan_m_1_info.png`,
+										imageUrl: `${defImgURL}kyeongsan_m_1_info.png`,
 									},
 									buttons: [
 										{
@@ -439,7 +440,7 @@ function buildMainMenuResponse(regionCode) {
 									title: '투어 프로그램 안내',
 									description: '테마별 여행 코스를 편하게 즐겨보세요!',
 									thumbnail: {
-										imageUrl: `${defURL}/images/kyeongsan_m_2_tour.png`,
+										imageUrl: `${defImgURL}kyeongsan_m_2_tour.png`,
 									},
 									buttons: [
 										{
@@ -454,7 +455,7 @@ function buildMainMenuResponse(regionCode) {
 									title: '교통·편의정보',
 									description: '주차장·버스·안내소 위치를 쉽게 찾아보세요.',
 									thumbnail: {
-										imageUrl: `${defURL}/images/kyeongsan_m_3_traffic.png`,
+										imageUrl: `${defImgURL}kyeongsan_m_3_traffic.png`,
 									},
 									buttons: [
 										{
@@ -469,7 +470,7 @@ function buildMainMenuResponse(regionCode) {
 									title: '자주 묻는 질문',
 									description: '여행 중 자주 물어보는 정보를 모았어요.',
 									thumbnail: {
-										imageUrl: `${defURL}/images/kyeongsan_m_4_faq.png`,
+										imageUrl: `${defImgURL}kyeongsan_m_4_faq.png`,
 									},
 									buttons: [
 										{
@@ -643,7 +644,7 @@ function buildTouristSpotCarouselResponse(spots) {
  * 투어 프로그램
  * =============================== */
  
-const TOUR_MAIN_IMAGE_URL = `${defURL}/images/program_main.png`;
+const TOUR_MAIN_IMAGE_URL = `${defImgURL}program_main.png`;
 
 // DB - 투어 프로그램 목록
 async function getTourCourses(regionCode) {
@@ -1363,7 +1364,7 @@ function buildFaqListResponse(categoryCode, faqs) {
 			title: question,
 			description: answer,
 			thumbnail: {
-				mageUrl: '${defURL}/images/kyeongsan_m_4_faq.png',
+				mageUrl: `${defImgURL}kyeongsan_m_4_faq.png`,
 			},
 			buttons: [
 				{
@@ -1479,7 +1480,7 @@ function buildFaqSearchResponse(keyword, faqs) {
 			title: question,
 			description: descLines.join('\n'),
 			thumbnail: {
-				mageUrl: '${defURL}/images/kyeongsan_m_4_faq.png',
+				mageUrl: `${defImgURL}kyeongsan_m_4_faq.png`,
 			},
 			buttons: [
 				{
