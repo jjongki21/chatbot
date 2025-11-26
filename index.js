@@ -1300,7 +1300,7 @@ function getFaqCategoryMessageText(categoryCode) {
 		return '';
 	}
   
-	return info.blockName;
+	return FirstUtterance(info.menu);
 }
 
 // Webhook json - FAQ 카테고리 리스트
@@ -1315,9 +1315,6 @@ function buildFaqCategoryListResponse(categories) {
 		return {
 			title: label,
 			description: `해당 유형의 자주 묻는 질문을 확인할 수 있어요.`,
-			thumbnail: {
-				imageUrl: '${defURL}/images/kyeongsan_m_4_faq.png',
-			},
 			buttons: [
 				{
 					label: `${label} 보기`,
