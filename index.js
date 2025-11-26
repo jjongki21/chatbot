@@ -679,16 +679,20 @@ function buildTourCourseCarouseResponse(regionCode, courses) {
 		
 		return lines.join('\n');
 	});
+	
+	const output = [];
+	output.push(buildCityTourResponse(regionCode));
+	
+	texts.forEach((text)=>{
+		outputs.push({
+			simpleText: { text },
+		});
+	});
 
 	return {
 		version: '2.0',
 		template: {
-			outputs: [
-				buildCityTourResponse(regionCode),
-				texts.map((text) => ({
-					simpleText: { text },
-				})),
-			],
+			outputs,
 			quickReplies: [
 				{
 					label: '처음으로',
